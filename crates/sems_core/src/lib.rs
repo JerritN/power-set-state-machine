@@ -1,9 +1,16 @@
 mod transition;
 mod statemachine;
-mod truth;
+mod params;
+mod results;
+
+use std::{any::{Any, TypeId}, collections::HashMap};
 
 pub use transition::Transition;
-pub use truth::Truth;
 pub use statemachine::StateMachine;
 
-pub type Id = &'static str;
+pub type Id = TypeId;
+type State = HashMap<Id, Box<dyn Any>>;
+
+pub trait Truth {
+    fn id() -> Id;
+}

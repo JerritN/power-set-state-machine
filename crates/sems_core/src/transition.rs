@@ -1,48 +1,74 @@
-use std::{any::Any, marker::PhantomData};
+use crate::{params::TransitionParam, results::TransitionResult, State};
 
-use crate::{truth::{Deconstructable, Requestable}, Id};
-
-pub struct Transition<Marker>
+pub struct Transition
 {
-    run: Box<dyn Fn(Vec<Box<dyn Any>>) -> Vec<(Id,Box<dyn Any>)>>,
-    _phantom: PhantomData<Marker>
+    run: Box<dyn Fn(&mut State)>
 }
 
-impl<Marker> Transition<Marker>
+impl Transition
 {
     pub fn new<F>(run: F) -> Self
     where
-        F: Fn(Vec<Box<dyn Any>>) -> Vec<(Id,Box<dyn Any>)> + 'static
+        F: Fn(&mut State) + 'static
     {
         Transition {
-            run: Box::new(run),
-            _phantom: PhantomData
+            run: Box::new(run)
         }
     }
 
-    pub fn run(&self, args: Vec<Box<dyn Any>>) -> Vec<(Id,Box<dyn Any>)>
-    {
-        (self.run)(args)
+    pub fn run(&self, state: &mut State) {
+        (self.run)(state);
     }
 }
 
-pub trait IntoTransition<Marker>
+pub trait IntoTransition<In,Marker>
 {
-    fn into_transition(self) -> Transition<Marker>;
+    fn into_transition(self) -> Transition;
 }
 
-impl<A,R,F> IntoTransition<(A,R)> for F
+impl<Res,Fun> IntoTransition<(),()> for Fun
 where 
-    A: Requestable + 'static,
-    R: Deconstructable,
-    F: Fn(A) -> R + 'static
+    Res: TransitionResult,
+    Fun: Fn() -> Res + 'static
 {
-    fn into_transition(self) -> Transition<(A,R)> {
+    fn into_transition(self) -> Transition {
         Transition::new(move |args| {
-            let mut iter = args.into_iter();
-            let a = A::take_from(&mut iter);
+            let res = self();
+            res.insert_into(args);
+        })
+    }
+}
+
+pub struct SingleMarker();
+
+impl<A,Res,Fun> IntoTransition<A,SingleMarker> for Fun
+where 
+    A: TransitionParam,
+    Res: TransitionResult,
+    Fun: Fn(A) -> Res + 'static
+{
+    fn into_transition(self) -> Transition {
+        Transition::new(move |args| {
+            let a = A::take_from(args);
             let res = self(a);
-            res.deconstruct()
+            res.insert_into(args);
+        })
+    }
+}
+
+impl<A,B,Res,Fun> IntoTransition<(A,B),()> for Fun
+where 
+    A: TransitionParam,
+    B: TransitionParam,
+    Res: TransitionResult,
+    Fun: Fn(A,B) -> Res + 'static
+{
+    fn into_transition(self) -> Transition {
+        Transition::new(move |args| {
+            let a = A::take_from(args);
+            let b = B::take_from(args);
+            let res = self(a,b);
+            res.insert_into(args);
         })
     }
 }

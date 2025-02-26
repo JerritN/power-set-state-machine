@@ -23,6 +23,9 @@ dependencies = [
 [[package]]
 name = "sems_core"
 version = "0.1.0"
+dependencies = [
+ "sems_macro",
+]
 
 [[package]]
 name = "sems_macro"
