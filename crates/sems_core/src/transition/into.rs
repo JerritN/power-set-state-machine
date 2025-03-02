@@ -1,38 +1,15 @@
-use std::marker::PhantomData;
+use crate::{results::TransitionResult, TransitionParam};
 
-use crate::{params::TransitionParam, results::TransitionResult, State};
-
-pub struct Transition<In>
-{
-    run: Box<dyn Fn(&mut State)>,
-    _in: PhantomData<In>
-}
-
-impl<In> Transition<In>
-{
-    pub(crate) fn new<F>(run: F) -> Self
-    where
-        F: Fn(&mut State) + 'static
-    {
-        Transition {
-            run: Box::new(run),
-            _in: PhantomData
-        }
-    }
-
-    pub fn run(&self, state: &mut State) {
-        (self.run)(state);
-    }
-}
+use super::{SingleMarker, Transition};
 
 pub trait IntoTransition<In,Marker>
 {
     fn into_transition(self) -> Transition<In>;
 }
 
-impl IntoTransition<(),()> for Transition<()>
+impl<In> IntoTransition<In,()> for Transition<In>
 {
-    fn into_transition(self) -> Transition<()> {
+    fn into_transition(self) -> Transition<In> {
         self
     }
 }
@@ -49,8 +26,6 @@ where
         })
     }
 }
-
-pub struct SingleMarker();
 
 impl<A,Res,Fun> IntoTransition<A,SingleMarker> for Fun
 where 

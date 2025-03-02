@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{params::TransitionParam, transition::IntoTransition, State, Truth};
+use crate::{params::TransitionParam, transition::{IntoTransitionOnce, Transition, TransitionMut}, State, Truth};
 
 pub struct StateMachine {
     state: State
@@ -13,10 +13,10 @@ impl StateMachine {
         }
     }
 
-    pub fn can_run<T,In,Marker>(&self, _: T) -> bool 
+    pub fn can_run<T,In,Marker>(&self, _: &T) -> bool 
     where 
         In: TransitionParam,
-        T: IntoTransition<In,Marker>
+        T: IntoTransitionOnce<In,Marker>
     {
         In::ids().iter().all(|id| self.state.contains_key(id))
     }
@@ -24,9 +24,9 @@ impl StateMachine {
     pub fn run<T,In,Marker>(&mut self, transition: T) -> Result<(), &str>
     where 
         In: TransitionParam,
-        T: IntoTransition<In,Marker> + Copy
+        T: IntoTransitionOnce<In,Marker>
     {
-        if self.can_run(transition) {
+        if self.can_run(&transition) {
             self.run_unchecked(transition);
             Ok(())
         } else {
@@ -36,10 +36,19 @@ impl StateMachine {
 
     pub fn run_unchecked<T,In,Marker>(&mut self, transition: T)
     where 
-        In: TransitionParam,
-        T: IntoTransition<In,Marker>
+        T: IntoTransitionOnce<In,Marker>
     {
-        transition.into_transition().run(&mut self.state);
+        transition.into_transition_once().run(&mut self.state);
+    }
+
+    pub fn run_ref_unchecked<In>(&mut self, transition: &Transition<In>)
+    {
+        transition.run(&mut self.state);
+    }
+
+    pub fn run_ref_mut_unchecked<In>(&mut self, transition: &mut TransitionMut<In>)
+    {
+        transition.run(&mut self.state);
     }
 
     pub fn set_truth<T: Truth + 'static>(&mut self, element: T) {

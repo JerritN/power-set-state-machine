@@ -5,9 +5,9 @@ use sems_macro::Truth;
 
 fn main() {
     let mut state_machine = StateMachine::new();
-    state_machine.run(t_a).unwrap();
-    state_machine.run(t_c).unwrap();
-    state_machine.run(t_c).unwrap();
+
+    state_machine.set_truth(A());
+    state_machine.run(t_d).unwrap();
 }
 
 #[derive(Debug,Truth)]
@@ -29,9 +29,9 @@ fn t_c(a: Option<A>) {
 }
 
 fn t_d(a: A, b: B) {
-    println!("{:?}", a);
+    println!("{:?},{:?}", a,b);
 }
 
-fn t_e(a: (A,B)) {
+fn t_e(a: (A,B), b: B) {
 
 }
