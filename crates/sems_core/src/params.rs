@@ -48,6 +48,19 @@ impl TransitionParam for () {
     fn collect_ids(_: &mut dyn FnMut(Id)) {}
 }
 
+impl<A> TransitionParam for (A,) 
+where 
+    A: TransitionParam
+{
+    fn take_from(state: &mut State) -> Self {
+        (A::take_from(state),)
+    }
+
+    fn collect_ids(collector: &mut dyn FnMut(Id)) {
+        A::collect_ids(collector);
+    }
+}
+
 impl<A,B> TransitionParam for (A, B) 
 where 
     A: TransitionParam,

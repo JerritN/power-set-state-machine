@@ -1,18 +1,37 @@
-use std::any::TypeId;
-
 use crate::{State, Truth};
 
 pub trait TransitionResult {
     fn insert_into(self, state: &mut State);
 }
 
+impl<T: Truth + 'static> TransitionResult for T {
+    fn insert_into(self, state: &mut State) {
+        state.insert(T::id(), Box::new(self));
+    }
+}
+
+impl<A> TransitionResult for Option<A>
+where 
+    A: TransitionResult
+{
+    fn insert_into(self, state: &mut State) {
+        if let Some(a) = self {
+            a.insert_into(state);
+        }
+    }
+}
+
 impl TransitionResult for () {
     fn insert_into(self, _: &mut State) {}
 }
 
-impl<T: Truth + 'static> TransitionResult for T {
+impl<A> TransitionResult for (A,) 
+where 
+    A: TransitionResult
+{
     fn insert_into(self, state: &mut State) {
-        state.insert(T::id(), Box::new(self));
+        let (a,) = self;
+        a.insert_into(state);
     }
 }
 
