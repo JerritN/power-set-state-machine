@@ -4,10 +4,14 @@ use std::collections::HashSet;
 mod into;
 mod intomut;
 mod intoonce;
+mod params;
+mod results;
 
 pub use into::IntoTransition;
 pub use intomut::IntoTransitionMut;
 pub use intoonce::IntoTransitionOnce;
+pub use params::TransitionParam;
+pub use results::TransitionResult;
 
 pub struct SingleMarker();
 pub struct UnknownParameter();

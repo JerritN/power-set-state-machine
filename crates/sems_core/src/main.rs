@@ -1,6 +1,4 @@
-use std::any::TypeId;
-
-use sems_core::{Id, StateMachine, Truth};
+use sems_core::{StateMachine, Truth};
 use sems_macro::Truth;
 
 fn main() {

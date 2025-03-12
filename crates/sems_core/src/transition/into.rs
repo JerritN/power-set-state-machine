@@ -1,8 +1,6 @@
 use std::collections::HashSet;
 
-use crate::{results::TransitionResult, TransitionParam};
-
-use super::{SingleMarker, Transition, UnknownParameter};
+use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Transition, UnknownParameter};
 
 pub trait IntoTransition<In,Marker>
 {

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{params::TransitionParam, transition::{IntoTransitionOnce, Transition, TransitionMut, TransitionOnce}, State, Truth};
+use crate::{transition::{IntoTransitionOnce, Transition, TransitionMut, TransitionOnce, TransitionParam}, State, Truth};
 
 pub struct StateMachine {
     state: State

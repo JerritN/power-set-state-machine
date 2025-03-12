@@ -1,6 +1,4 @@
-use crate::{results::TransitionResult, TransitionParam};
-
-use super::{SingleMarker, Transition, TransitionMut, UnknownParameter};
+use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Transition, TransitionMut, UnknownParameter};
 
 pub trait IntoTransitionMut<In,Marker>
 {
