@@ -1,4 +1,4 @@
-use std::{collections::HashSet};
+use std::collections::HashSet;
 
 use crate::{Id, State, Truth};
 
@@ -50,7 +50,7 @@ where
             .map(|val| *val.downcast::<T>().expect("Invalid type stored for truth"))
     }
 
-    fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
+    fn collect_required<C,E>(_: &mut C) -> Result<(),E>
     where 
         C: FnMut(Id) -> Result<(),E>
     {

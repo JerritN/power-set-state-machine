@@ -28,6 +28,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sems_dictionary"
+version = "0.1.0"
+dependencies = [
+ "sems_core",
+ "sems_macro",
+]
+
+[[package]]
 name = "sems_macro"
 version = "0.1.0"
 dependencies = [

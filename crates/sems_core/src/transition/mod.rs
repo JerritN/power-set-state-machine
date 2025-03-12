@@ -1,5 +1,5 @@
 use crate::State;
-use std::{collections::HashSet, marker::PhantomData};
+use std::collections::HashSet;
 
 mod into;
 mod intomut;

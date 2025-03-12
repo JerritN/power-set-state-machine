@@ -21,6 +21,18 @@ impl StateMachine {
         Ok(In::required()?.iter().all(|id| self.state.contains_key(id)))
     }
 
+    pub fn can_run_transition(&self, transition: &Transition) -> bool {
+        transition.requires().iter().all(|id| self.state.contains_key(id))
+    }
+
+    pub fn can_run_transition_mut(&self, transition: &TransitionMut) -> bool {
+        transition.requires().iter().all(|id| self.state.contains_key(id))
+    }
+
+    pub fn can_run_transition_once(&self, transition: &TransitionOnce) -> bool {
+        transition.requires().iter().all(|id| self.state.contains_key(id))
+    }
+
     pub fn run<T,In,Marker>(&mut self, transition: T) -> Result<(),&'static str>
     where 
         T: IntoTransitionOnce<In,Marker>
@@ -44,7 +56,7 @@ impl StateMachine {
         transition.run(&mut self.state);
     }
 
-    pub fn run_ref_mut_unchecked<In>(&mut self, transition: &mut TransitionMut)
+    pub fn run_ref_mut_unchecked(&mut self, transition: &mut TransitionMut)
     {
         transition.run(&mut self.state);
     }
