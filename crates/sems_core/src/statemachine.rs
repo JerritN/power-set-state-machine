@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{params::TransitionParam, transition::{IntoTransitionOnce, Transition, TransitionMut}, State, Truth};
+use crate::{params::TransitionParam, transition::{IntoTransitionOnce, Transition, TransitionMut, TransitionOnce}, State, Truth};
 
 pub struct StateMachine {
     state: State
@@ -13,40 +13,38 @@ impl StateMachine {
         }
     }
 
-    pub fn can_run<T,In,Marker>(&self, _: &T) -> bool 
+    pub fn can_run<T,In,Marker>(&self, _: &T) -> Result<bool,&'static str>
     where 
         In: TransitionParam,
         T: IntoTransitionOnce<In,Marker>
     {
-        In::ids().iter().all(|id| self.state.contains_key(id))
+        Ok(In::required()?.iter().all(|id| self.state.contains_key(id)))
     }
 
-    pub fn run<T,In,Marker>(&mut self, transition: T) -> Result<(), &str>
+    pub fn run<T,In,Marker>(&mut self, transition: T) -> Result<(),&'static str>
     where 
-        In: TransitionParam,
         T: IntoTransitionOnce<In,Marker>
     {
-        if self.can_run(&transition) {
-            self.run_unchecked(transition);
+        let transition = transition.into_transition_once()?;
+        if transition.requires().iter().all(|id| self.state.contains_key(id)) {
+            transition.run(&mut self.state);
             Ok(())
         } else {
-            Err("Cannot run transition on current state")
+            Err("Missing a required truth")
         }
     }
 
-    pub fn run_unchecked<T,In,Marker>(&mut self, transition: T)
-    where 
-        T: IntoTransitionOnce<In,Marker>
-    {
-        transition.into_transition_once().run(&mut self.state);
-    }
-
-    pub fn run_ref_unchecked<In>(&mut self, transition: &Transition<In>)
+    pub fn run_unchecked(&mut self, transition: TransitionOnce)
     {
         transition.run(&mut self.state);
     }
 
-    pub fn run_ref_mut_unchecked<In>(&mut self, transition: &mut TransitionMut<In>)
+    pub fn run_ref_unchecked(&mut self, transition: &Transition)
+    {
+        transition.run(&mut self.state);
+    }
+
+    pub fn run_ref_mut_unchecked<In>(&mut self, transition: &mut TransitionMut)
     {
         transition.run(&mut self.state);
     }

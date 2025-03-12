@@ -1,25 +1,26 @@
 use crate::{results::TransitionResult, TransitionParam};
 
-use super::{SingleMarker, Transition, TransitionMut};
+use super::{SingleMarker, Transition, TransitionMut, UnknownParameter};
 
 pub trait IntoTransitionMut<In,Marker>
 {
-    fn into_transition_mut(self) -> TransitionMut<In>;
+    fn into_transition_mut(self) -> Result<TransitionMut,&'static str>;
 }
 
-impl<In: 'static> IntoTransitionMut<In,()> for Transition<In>
+impl IntoTransitionMut<UnknownParameter,()> for Transition
 {
-    fn into_transition_mut(self) -> TransitionMut<In> {
-        TransitionMut::new(move |args| {
-            self.run(args);
-        })
+    fn into_transition_mut(self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            self.func,
+            self.requires
+        ))
     }
 }
 
-impl<In> IntoTransitionMut<In,()> for TransitionMut<In>
+impl IntoTransitionMut<UnknownParameter,()> for TransitionMut
 {
-    fn into_transition_mut(self) -> TransitionMut<In> {
-        self
+    fn into_transition_mut(self) -> Result<TransitionMut,&'static str> {
+        Ok(self)
     }
 }
 
@@ -28,11 +29,14 @@ where
     Res: TransitionResult,
     Fun: FnMut() -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<()> {
-        TransitionMut::new(move |args| {
-            let res = self();
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let res = self();
+                res.insert_into(args);
+            },
+            <()>::required()?
+        ))
     }
 }
 
@@ -42,12 +46,15 @@ where
     Res: TransitionResult,
     Fun: FnMut(A) -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<A> {
-        TransitionMut::new(move |args| {
-            let a = A::take_from(args);
-            let res = self(a);
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let p = <A>::take_from(args);
+                let res = self(p);
+                res.insert_into(args);
+            },
+            A::required()?
+        ))
     }
 }
 
@@ -58,12 +65,15 @@ where
     Res: TransitionResult,
     Fun: FnMut(A,B) -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<(A,B)> {
-        TransitionMut::new(move |args| {
-            let p = <(A,B)>::take_from(args);
-            let res = self(p.0,p.1);
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let (p1,p2) = <(A,B)>::take_from(args);
+                let res = self(p1,p2);
+                res.insert_into(args);
+            },
+            <(A,B)>::required()?
+        ))
     }
 }
 
@@ -75,12 +85,15 @@ where
     Res: TransitionResult,
     Fun: FnMut(A,B,C) -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<(A,B,C)> {
-        TransitionMut::new(move |args| {
-            let p = <(A,B,C)>::take_from(args);
-            let res = self(p.0,p.1,p.2);
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let (p1,p2,p3) = <(A,B,C)>::take_from(args);
+                let res = self(p1,p2,p3);
+                res.insert_into(args);
+            },
+            <(A,B,C)>::required()?
+        ))
     }
 }
 
@@ -93,12 +106,15 @@ where
     Res: TransitionResult,
     Fun: FnMut(A,B,C,D) -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<(A,B,C,D)> {
-        TransitionMut::new(move |args| {
-            let p = <(A,B,C,D)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3);
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let (p1,p2,p3,p4) = <(A,B,C,D)>::take_from(args);
+                let res = self(p1,p2,p3,p4);
+                res.insert_into(args);
+            },
+            <(A,B,C,D)>::required()?
+        ))
     }
 }
 
@@ -112,12 +128,15 @@ where
     Res: TransitionResult,
     Fun: FnMut(A,B,C,D,E) -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<(A,B,C,D,E)> {
-        TransitionMut::new(move |args| {
-            let p = <(A,B,C,D,E)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3,p.4);
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let (p1,p2,p3,p4,p5) = <(A,B,C,D,E)>::take_from(args);
+                let res = self(p1,p2,p3,p4,p5);
+                res.insert_into(args);
+            },
+            <(A,B,C,D,E)>::required()?
+        ))
     }
 }
 
@@ -132,12 +151,15 @@ where
     Res: TransitionResult,
     Fun: FnMut(A,B,C,D,E,F) -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<(A,B,C,D,E,F)> {
-        TransitionMut::new(move |args| {
-            let p = <(A,B,C,D,E,F)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3,p.4,p.5);
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let (p1,p2,p3,p4,p5,p6) = <(A,B,C,D,E,F)>::take_from(args);
+                let res = self(p1,p2,p3,p4,p5,p6);
+                res.insert_into(args);
+            },
+            <(A,B,C,D,E,F)>::required()?
+        ))
     }
 }
 
@@ -153,12 +175,15 @@ where
     Res: TransitionResult,
     Fun: FnMut(A,B,C,D,E,F,G) -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<(A,B,C,D,E,F,G)> {
-        TransitionMut::new(move |args| {
-            let p = <(A,B,C,D,E,F,G)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3,p.4,p.5,p.6);
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let (p1,p2,p3,p4,p5,p6,p7) = <(A,B,C,D,E,F,G)>::take_from(args);
+                let res = self(p1,p2,p3,p4,p5,p6,p7);
+                res.insert_into(args);
+            },
+            <(A,B,C,D,E,F,G)>::required()?
+        ))
     }
 }
 
@@ -175,11 +200,14 @@ where
     Res: TransitionResult,
     Fun: FnMut(A,B,C,D,E,F,G,H) -> Res + 'static
 {
-    fn into_transition_mut(mut self) -> TransitionMut<(A,B,C,D,E,F,G,H)> {
-        TransitionMut::new(move |args| {
-            let p = <(A,B,C,D,E,F,G,H)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3,p.4,p.5,p.6,p.7);
-            res.insert_into(args);
-        })
+    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+        Ok(TransitionMut::new(
+            move |args| {
+                let (p1,p2,p3,p4,p5,p6,p7,p8) = <(A,B,C,D,E,F,G,H)>::take_from(args);
+                let res = self(p1,p2,p3,p4,p5,p6,p7,p8);
+                res.insert_into(args);
+            },
+            <(A,B,C,D,E,F,G,H)>::required()?
+        ))
     }
 }

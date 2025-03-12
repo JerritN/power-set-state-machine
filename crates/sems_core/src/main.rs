@@ -6,8 +6,8 @@ use sems_macro::Truth;
 fn main() {
     let mut state_machine = StateMachine::new();
 
-    state_machine.set_truth(A());
-    state_machine.run(t_d).unwrap();
+    state_machine.run(t_a).unwrap();
+    state_machine.run(t_e).unwrap();
 }
 
 #[derive(Debug,Truth)]

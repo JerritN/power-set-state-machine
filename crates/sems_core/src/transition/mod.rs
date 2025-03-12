@@ -1,5 +1,5 @@
 use crate::State;
-use std::marker::PhantomData;
+use std::{collections::HashSet, marker::PhantomData};
 
 mod into;
 mod intomut;
@@ -10,66 +10,79 @@ pub use intomut::IntoTransitionMut;
 pub use intoonce::IntoTransitionOnce;
 
 pub struct SingleMarker();
+pub struct UnknownParameter();
 
-pub struct Transition<In> {
-    func: Box<dyn Fn(&mut State)>,
-    _in: PhantomData<In>
+pub struct Transition {
+    pub(crate) func: Box<dyn Fn(&mut State)>,
+    pub(crate) requires: HashSet<crate::Id>
 }
 
-pub struct TransitionMut<In> {
-    func: Box<dyn FnMut(&mut State)>,
-    _in: PhantomData<In>
+pub struct TransitionMut {
+    pub(crate) func: Box<dyn FnMut(&mut State)>,
+    pub(crate) requires: HashSet<crate::Id>
 }
 
-pub struct TransitionOnce<In> {
-    func: Box<dyn FnOnce(&mut State)>,
-    _in: PhantomData<In>
+pub struct TransitionOnce {
+    pub(crate) func: Box<dyn FnOnce(&mut State)>,
+    pub(crate) requires: HashSet<crate::Id>
 }
 
-impl<In> Transition<In> {
-    pub(crate) fn new<F>(func: F) -> Self
-    where
+impl Transition {
+    pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
+    where 
         F: Fn(&mut State) + 'static
     {
-        Transition {
+        Self {
             func: Box::new(func),
-            _in: PhantomData
+            requires
         }
     }
 
-    pub fn run(&self, state: &mut State) {
+    pub(crate) fn run(&self, state: &mut State) {
         (self.func)(state);
+    }
+
+    pub(crate) fn requires(&self) -> &HashSet<crate::Id> {
+        &self.requires
     }
 }
 
-impl<In> TransitionMut<In> {
-    pub(crate) fn new<F>(func: F) -> Self
-    where
+impl TransitionMut {
+    pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
+    where 
         F: FnMut(&mut State) + 'static
     {
-        TransitionMut {
+        Self {
             func: Box::new(func),
-            _in: PhantomData
+            requires
         }
     }
 
-    pub fn run(&mut self, state: &mut State) {
+    pub(crate) fn run(&mut self, state: &mut State) {
         (self.func)(state);
+    }
+
+    pub(crate) fn requires(&self) -> &HashSet<crate::Id> {
+        &self.requires
     }
 }
 
-impl<In> TransitionOnce<In> {
-    pub(crate) fn new<F>(func: F) -> Self
-    where
+impl TransitionOnce {
+    pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
+    where 
         F: FnOnce(&mut State) + 'static
     {
-        TransitionOnce {
+        Self {
             func: Box::new(func),
-            _in: PhantomData
+            requires
         }
     }
 
-    pub fn run(self, state: &mut State) {
+    pub(crate) fn run(self, state: &mut State) {
         (self.func)(state);
+    }
+
+    pub(crate) fn requires(&self) -> &HashSet<crate::Id> {
+        &self.requires
     }
 }

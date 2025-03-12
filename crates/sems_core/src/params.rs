@@ -1,14 +1,24 @@
+use std::{collections::HashSet};
+
 use crate::{Id, State, Truth};
 
 pub trait TransitionParam {
     fn take_from(state: &mut State) -> Self;
 
-    fn collect_ids(collector: &mut dyn FnMut(Id));
+    fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
+    where 
+        C: FnMut(Id) -> Result<(),E>;
 
-    fn ids() -> Vec<Id> {
-        let mut ids = Vec::new();
-        Self::collect_ids(&mut |id| ids.push(id));
-        ids
+    fn required() -> Result<HashSet<Id>,&'static str> {
+        let mut ids = HashSet::new();
+        Self::collect_required(&mut |id| { 
+            if ids.contains(&id) {
+                Err("Transition requires the same truth multiple times")
+            } else {
+                ids.insert(id);
+                Ok(())
+            }
+        }).map(|_| ids)
     }
 }
 
@@ -23,8 +33,11 @@ where
             .expect("Invalid type stored for truth")
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        collector(T::id());
+    fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
+    where 
+        C: FnMut(Id) -> Result<(),E>
+    {
+        collector(T::id())
     }
 }
 
@@ -37,7 +50,12 @@ where
             .map(|val| *val.downcast::<T>().expect("Invalid type stored for truth"))
     }
 
-    fn collect_ids(_: &mut dyn FnMut(Id)) {}
+    fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
+    where 
+        C: FnMut(Id) -> Result<(),E>
+    {
+        Ok(())
+    }
 }
 
 impl TransitionParam for () {
@@ -45,7 +63,12 @@ impl TransitionParam for () {
         ()
     }
 
-    fn collect_ids(_: &mut dyn FnMut(Id)) {}
+    fn collect_required<C,E>(_: &mut C) -> Result<(),E>
+    where 
+        C: FnMut(Id) -> Result<(),E>
+    {
+        Ok(())
+    }
 }
 
 impl<A> TransitionParam for (A,) 
@@ -56,8 +79,11 @@ where
         (A::take_from(state),)
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        A::collect_ids(collector);
+    fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
+    where 
+        C: FnMut(Id) -> Result<(),E>
+    {
+        A::collect_required(collector)
     }
 }
 
@@ -70,9 +96,12 @@ where
         (A::take_from(state), B::take_from(state))
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        A::collect_ids(collector);
-        B::collect_ids(collector);
+    fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
+    where 
+        C: FnMut(Id) -> Result<(),E>
+    {
+        A::collect_required(collector)?;
+        B::collect_required(collector)
     }
 }
 
@@ -86,10 +115,13 @@ where
         (A::take_from(state), B::take_from(state), C::take_from(state))
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        A::collect_ids(collector);
-        B::collect_ids(collector);
-        C::collect_ids(collector);
+    fn collect_required<Col,Err>(collector: &mut Col) -> Result<(),Err>
+    where 
+        Col: FnMut(Id) -> Result<(),Err>
+    {
+        A::collect_required(collector)?;
+        B::collect_required(collector)?;
+        C::collect_required(collector)
     }
 }
 
@@ -104,11 +136,14 @@ where
         (A::take_from(state), B::take_from(state), C::take_from(state), D::take_from(state))
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        A::collect_ids(collector);
-        B::collect_ids(collector);
-        C::collect_ids(collector);
-        D::collect_ids(collector);
+    fn collect_required<Col,Err>(collector: &mut Col) -> Result<(),Err>
+    where 
+        Col: FnMut(Id) -> Result<(),Err>
+    {
+        A::collect_required(collector)?;
+        B::collect_required(collector)?;
+        C::collect_required(collector)?;
+        D::collect_required(collector)
     }
 }
 
@@ -124,12 +159,15 @@ where
         (A::take_from(state), B::take_from(state), C::take_from(state), D::take_from(state), E::take_from(state))
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        A::collect_ids(collector);
-        B::collect_ids(collector);
-        C::collect_ids(collector);
-        D::collect_ids(collector);
-        E::collect_ids(collector);
+    fn collect_required<Col,Err>(collector: &mut Col) -> Result<(),Err>
+    where 
+        Col: FnMut(Id) -> Result<(),Err>
+    {
+        A::collect_required(collector)?;
+        B::collect_required(collector)?;
+        C::collect_required(collector)?;
+        D::collect_required(collector)?;
+        E::collect_required(collector)
     }
 }
 
@@ -146,13 +184,16 @@ where
         (A::take_from(state), B::take_from(state), C::take_from(state), D::take_from(state), E::take_from(state), F::take_from(state))
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        A::collect_ids(collector);
-        B::collect_ids(collector);
-        C::collect_ids(collector);
-        D::collect_ids(collector);
-        E::collect_ids(collector);
-        F::collect_ids(collector);
+    fn collect_required<Col,Err>(collector: &mut Col) -> Result<(),Err>
+    where 
+        Col: FnMut(Id) -> Result<(),Err>
+    {
+        A::collect_required(collector)?;
+        B::collect_required(collector)?;
+        C::collect_required(collector)?;
+        D::collect_required(collector)?;
+        E::collect_required(collector)?;
+        F::collect_required(collector)
     }
 }
 
@@ -170,14 +211,17 @@ where
         (A::take_from(state), B::take_from(state), C::take_from(state), D::take_from(state), E::take_from(state), F::take_from(state), G::take_from(state))
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        A::collect_ids(collector);
-        B::collect_ids(collector);
-        C::collect_ids(collector);
-        D::collect_ids(collector);
-        E::collect_ids(collector);
-        F::collect_ids(collector);
-        G::collect_ids(collector);
+    fn collect_required<Col,Err>(collector: &mut Col) -> Result<(),Err>
+    where 
+        Col: FnMut(Id) -> Result<(),Err>
+    {
+        A::collect_required(collector)?;
+        B::collect_required(collector)?;
+        C::collect_required(collector)?;
+        D::collect_required(collector)?;
+        E::collect_required(collector)?;
+        F::collect_required(collector)?;
+        G::collect_required(collector)
     }
 }
 
@@ -196,14 +240,17 @@ where
         (A::take_from(state), B::take_from(state), C::take_from(state), D::take_from(state), E::take_from(state), F::take_from(state), G::take_from(state), H::take_from(state))
     }
 
-    fn collect_ids(collector: &mut dyn FnMut(Id)) {
-        A::collect_ids(collector);
-        B::collect_ids(collector);
-        C::collect_ids(collector);
-        D::collect_ids(collector);
-        E::collect_ids(collector);
-        F::collect_ids(collector);
-        G::collect_ids(collector);
-        H::collect_ids(collector);
+    fn collect_required<Col,Err>(collector: &mut Col) -> Result<(),Err>
+    where 
+        Col: FnMut(Id) -> Result<(),Err>
+    {
+        A::collect_required(collector)?;
+        B::collect_required(collector)?;
+        C::collect_required(collector)?;
+        D::collect_required(collector)?;
+        E::collect_required(collector)?;
+        F::collect_required(collector)?;
+        G::collect_required(collector)?;
+        H::collect_required(collector)
     }
 }

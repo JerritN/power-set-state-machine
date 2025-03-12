@@ -1,34 +1,36 @@
 use crate::{results::TransitionResult, TransitionParam};
 
-use super::{SingleMarker, Transition, TransitionMut, TransitionOnce};
+use super::{SingleMarker, Transition, TransitionMut, TransitionOnce, UnknownParameter};
 
 pub trait IntoTransitionOnce<In,Marker>
 {
-    fn into_transition_once(self) -> TransitionOnce<In>;
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str>;
 }
 
-impl<In: 'static> IntoTransitionOnce<In,()> for Transition<In>
+impl IntoTransitionOnce<UnknownParameter,()> for Transition
 {
-    fn into_transition_once(self) -> TransitionOnce<In> {
-        TransitionOnce::new(move |args| {
-            self.run(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            self.func,
+            self.requires
+        ))
     }
 }
 
-impl<In: 'static> IntoTransitionOnce<In,()> for TransitionMut<In>
+impl IntoTransitionOnce<UnknownParameter,()> for TransitionMut
 {
-    fn into_transition_once(mut self) -> TransitionOnce<In> {
-        TransitionOnce::new(move |args| {
-            self.run(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            self.func,
+            self.requires
+        ))
     }
 }
 
-impl<In> IntoTransitionOnce<In,()> for TransitionOnce<In>
+impl IntoTransitionOnce<UnknownParameter,()> for TransitionOnce
 {
-    fn into_transition_once(self) -> TransitionOnce<In> {
-        self
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(self)
     }
 }
 
@@ -37,11 +39,14 @@ where
     Res: TransitionResult,
     Fun: FnOnce() -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<()> {
-        TransitionOnce::new(move |args| {
-            let res = self();
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let res = self();
+                res.insert_into(args);
+            },
+            <()>::required()?
+        ))
     }
 }
 
@@ -51,12 +56,15 @@ where
     Res: TransitionResult,
     Fun: FnOnce(A) -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<A> {
-        TransitionOnce::new(move |args| {
-            let a = A::take_from(args);
-            let res = self(a);
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let p = <A>::take_from(args);
+                let res = self(p);
+                res.insert_into(args);
+            },
+            A::required()?
+        ))
     }
 }
 
@@ -67,12 +75,15 @@ where
     Res: TransitionResult,
     Fun: FnOnce(A,B) -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<(A,B)> {
-        TransitionOnce::new(move |args| {
-            let p = <(A,B)>::take_from(args);
-            let res = self(p.0,p.1);
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let p = <(A,B)>::take_from(args);
+                let res = self(p.0,p.1);
+                res.insert_into(args);
+            },
+            <(A,B)>::required()?
+        ))
     }
 }
 
@@ -84,12 +95,15 @@ where
     Res: TransitionResult,
     Fun: FnOnce(A,B,C) -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<(A,B,C)> {
-        TransitionOnce::new(move |args| {
-            let p = <(A,B,C)>::take_from(args);
-            let res = self(p.0,p.1,p.2);
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let p = <(A,B,C)>::take_from(args);
+                let res = self(p.0,p.1,p.2);
+                res.insert_into(args);
+            },
+            <(A,B,C)>::required()?
+        ))
     }
 }
 
@@ -102,12 +116,15 @@ where
     Res: TransitionResult,
     Fun: FnOnce(A,B,C,D) -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<(A,B,C,D)> {
-        TransitionOnce::new(move |args| {
-            let p = <(A,B,C,D)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3);
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let p = <(A,B,C,D)>::take_from(args);
+                let res = self(p.0,p.1,p.2,p.3);
+                res.insert_into(args);
+            },
+            <(A,B,C,D)>::required()?
+        ))
     }
 }
 
@@ -121,12 +138,15 @@ where
     Res: TransitionResult,
     Fun: FnOnce(A,B,C,D,E) -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<(A,B,C,D,E)> {
-        TransitionOnce::new(move |args| {
-            let p = <(A,B,C,D,E)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3,p.4);
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let p = <(A,B,C,D,E)>::take_from(args);
+                let res = self(p.0,p.1,p.2,p.3,p.4);
+                res.insert_into(args);
+            },
+            <(A,B,C,D,E)>::required()?
+        ))
     }
 }
 
@@ -141,12 +161,15 @@ where
     Res: TransitionResult,
     Fun: FnOnce(A,B,C,D,E,F) -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<(A,B,C,D,E,F)> {
-        TransitionOnce::new(move |args| {
-            let p = <(A,B,C,D,E,F)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3,p.4,p.5);
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let p = <(A,B,C,D,E,F)>::take_from(args);
+                let res = self(p.0,p.1,p.2,p.3,p.4,p.5);
+                res.insert_into(args);
+            },
+            <(A,B,C,D,E,F)>::required()?
+        ))
     }
 }
 
@@ -162,12 +185,15 @@ where
     Res: TransitionResult,
     Fun: FnOnce(A,B,C,D,E,F,G) -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<(A,B,C,D,E,F,G)> {
-        TransitionOnce::new(move |args| {
-            let p = <(A,B,C,D,E,F,G)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3,p.4,p.5,p.6);
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let p = <(A,B,C,D,E,F,G)>::take_from(args);
+                let res = self(p.0,p.1,p.2,p.3,p.4,p.5,p.6);
+                res.insert_into(args);
+            },
+            <(A,B,C,D,E,F,G)>::required()?
+        ))
     }
 }
 
@@ -184,11 +210,14 @@ where
     Res: TransitionResult,
     Fun: FnOnce(A,B,C,D,E,F,G,H) -> Res + 'static
 {
-    fn into_transition_once(self) -> TransitionOnce<(A,B,C,D,E,F,G,H)> {
-        TransitionOnce::new(move |args| {
-            let p = <(A,B,C,D,E,F,G,H)>::take_from(args);
-            let res = self(p.0,p.1,p.2,p.3,p.4,p.5,p.6,p.7);
-            res.insert_into(args);
-        })
+    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+        Ok(TransitionOnce::new(
+            move |args| {
+                let p = <(A,B,C,D,E,F,G,H)>::take_from(args);
+                let res = self(p.0,p.1,p.2,p.3,p.4,p.5,p.6,p.7);
+                res.insert_into(args);
+            },
+            <(A,B,C,D,E,F,G,H)>::required()?
+        ))
     }
 }
