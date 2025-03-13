@@ -2,8 +2,19 @@ use std::collections::HashSet;
 
 use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Transition, UnknownParameter};
 
+/// A trait that allows an object to be converted into a `Transition`.
+/// 
+/// This trait is implemented for:
+/// 
+/// - The `Transition` type
+/// - `Fn` types that take up to 8 parameters of types that implement `TransitionParam`
+/// and return a type that implements `TransitionResult`
 pub trait IntoTransition<In,Marker>
 {
+    /// Converts the object into a `Transition`.
+    /// 
+    /// This function will convert the object into a `Transition`.
+    /// If the object cannot be converted into a `Transition`, this function will return an error.
     fn into_transition(self) -> Result<Transition,&'static str>;
 }
 

@@ -1,35 +1,20 @@
-use sems_core::{StateMachine, Truth};
+use sems_core::{StateMachine, Truth, transition::IntoTransitionMut};
 use sems_macro::Truth;
 
 fn main() {
     let mut state_machine = StateMachine::new();
+    state_machine.set_truth(A(5));
 
-    state_machine.run(t_a).unwrap();
-    state_machine.run(t_e).unwrap();
+    /*
+    let mut vec = Vec::new();
+    let insert_a = |a: A| _ = &mut vec.push(a.0);
+    let mut transition = insert_a.into_transition_mut().unwrap();
+    state_machine.run_ref_mut_unchecked(&mut transition);
+    */
 }
 
 #[derive(Debug,Truth)]
-struct A();
+struct A(i32);
 
 #[derive(Debug,Truth)]
 struct B();
-
-fn t_a() -> A {
-    A()
-}
-
-fn t_b(a: A) {
-    println!("{:?}", a);
-}
-
-fn t_c(a: Option<A>) {
-    println!("{:?}", a);
-}
-
-fn t_d(a: A, b: B) {
-    println!("{:?},{:?}", a,b);
-}
-
-fn t_e(a: (A,B), b: B) {
-
-}

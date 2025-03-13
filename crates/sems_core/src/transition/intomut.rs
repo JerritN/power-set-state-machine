@@ -1,7 +1,19 @@
 use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Transition, TransitionMut, UnknownParameter};
 
+/// A trait that allows an object to be converted into a `TransitionMut`.
+/// 
+/// This trait is implemented for:
+/// 
+/// - The `Transition` type
+/// - The `TransitionMut` type
+/// - `FnMut` types that take up to 8 parameters of types that implement `TransitionParam`
+/// and return a type that implements `TransitionResult`
 pub trait IntoTransitionMut<In,Marker>
 {
+    /// Converts the object into a `TransitionMut`.
+    /// 
+    /// This function will convert the object into a `TransitionMut`.
+    /// If the object cannot be converted into a `TransitionMut`, this function will return an error.
     fn into_transition_mut(self) -> Result<TransitionMut,&'static str>;
 }
 

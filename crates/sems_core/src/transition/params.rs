@@ -2,13 +2,85 @@ use std::collections::HashSet;
 
 use crate::{Id, State, Truth};
 
+/// A trait that represents a transition parameter.
+/// 
+/// A transition parameter is a piece of data that can be passed as a function parameter to a transition.
+/// 
+/// It is implemented for:
+/// 
+/// - `Truth` types
+/// - `Option<Truth>` types
+/// - Tuples of up to 8 `TransitionParam` types
 pub trait TransitionParam {
+
+    /// Takes the required truth from the state.
+    /// 
+    /// This function will take the required truth from the state and return it. If the state does not
+    /// contain the required truth, this function will panic.
+    /// 
+    /// # Panics
+    /// 
+    /// This function will panic if the state does not contain the required truth.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sems_core::{StateMachine, Truth};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth,Eq)]
+    /// struct A();
+    /// 
+    /// let mut state = HashMap::new();
+    /// state.insert(A::id(), Box::new(A()));
+    /// 
+    /// let a = A::take_from(&mut state);
+    /// 
+    /// assert_eq!(a, A());
+    /// ```
     fn take_from(state: &mut State) -> Self;
 
+    /// Collects the required truths for this parameter.
+    /// 
+    /// This function will call the given closure with the id of each required truth. If the closure
+    /// returns an error, this function will return that error.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sems_core::{StateMachine, Truth};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth)]
+    /// struct A();
+    /// 
+    /// A::collect_required(&mut |id| {
+    ///    assert_eq!(id, A::id());
+    ///    Ok(())
+    /// }).unwrap();
     fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
     where 
         C: FnMut(Id) -> Result<(),E>;
 
+    /// Collects the required truths for this parameter.
+    /// 
+    /// This function will return a set of the required truth ids for this parameter. If the same truth
+    /// is required multiple times, this function will return an error.
+    /// 
+    /// # Examples	
+    /// 
+    /// ```
+    /// use sems_core::{StateMachine, Truth};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth)]
+    /// struct A();
+    /// 
+    /// let ids = A::required().unwrap();
+    /// 
+    /// assert_eq!(ids.len(), 1);
+    /// assert!(ids.contains(&A::id()));
+    /// ```
     fn required() -> Result<HashSet<Id>,&'static str> {
         let mut ids = HashSet::new();
         Self::collect_required(&mut |id| { 

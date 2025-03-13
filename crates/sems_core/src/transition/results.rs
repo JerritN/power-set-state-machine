@@ -1,6 +1,34 @@
 use crate::{State, Truth};
 
+/// A trait that represents a transition result.
+/// 
+/// A transition result is a piece of data that can be returned from a transition.
+/// 
+/// It is implemented for:
+/// 
+/// - `Truth` types
+/// - `Option<Truth>` types
+/// - Tuples of up to 8 `TransitionResult` types
 pub trait TransitionResult {
+
+    /// Inserts the transition result into the state.
+    /// 
+    /// This function will insert the transition result into the state.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sems_core::{StateMachine, Truth};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth)]
+    /// struct A();
+    /// 
+    /// let mut state = HashMap::new();
+    /// A().insert_into(&mut state);
+    /// 
+    /// assert!(state.contains_key(&A::id()));
+    /// ```
     fn insert_into(self, state: &mut State);
 }
 

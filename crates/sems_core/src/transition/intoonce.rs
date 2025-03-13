@@ -1,7 +1,20 @@
 use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Transition, TransitionMut, TransitionOnce, UnknownParameter};
 
+/// A trait that allows an object to be converted into a `TransitionOnce`.
+/// 
+/// This trait is implemented for:
+/// 
+/// - The `Transition` type
+/// - The `TransitionMut` type
+/// - The `TransitionOnce` type
+/// - `FnOnce` types that take up to 8 parameters of types that implement `TransitionParam`
+/// and return a type that implements `TransitionResult`
 pub trait IntoTransitionOnce<In,Marker>
 {
+    /// Converts the object into a `TransitionOnce`.
+    /// 
+    /// This function will convert the object into a `TransitionOnce`.
+    /// If the object cannot be converted into a `TransitionOnce`, this function will return an error.
     fn into_transition_once(self) -> Result<TransitionOnce,&'static str>;
 }
 
