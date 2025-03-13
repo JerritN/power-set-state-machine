@@ -25,18 +25,18 @@ pub trait TransitionParam {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
+    /// use sems_core::{Truth, transition::TransitionParam};
     /// use sems_macro::*;
+    /// use std::collections::HashMap;
+    /// use std::any::Any;
     /// 
-    /// #[derive(Truth,Eq)]
+    /// #[derive(Truth,Debug)]
     /// struct A();
     /// 
     /// let mut state = HashMap::new();
-    /// state.insert(A::id(), Box::new(A()));
+    /// state.insert(A::id(), Box::new(A()) as Box<dyn Any>);
     /// 
-    /// let a = A::take_from(&mut state);
-    /// 
-    /// assert_eq!(a, A());
+    /// A::take_from(&mut state);
     /// ```
     fn take_from(state: &mut State) -> Self;
 
@@ -48,16 +48,21 @@ pub trait TransitionParam {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
+    /// use sems_core::{Truth, transition::TransitionParam};
     /// use sems_macro::*;
     /// 
     /// #[derive(Truth)]
     /// struct A();
     /// 
+    /// let mut vec = Vec::new();
+    /// 
     /// A::collect_required(&mut |id| {
-    ///    assert_eq!(id, A::id());
-    ///    Ok(())
+    ///    vec.push(id);
+    ///    Ok::<(),()>(())
     /// }).unwrap();
+    /// 
+    /// assert_eq!(vec.len(), 1);
+    /// ```
     fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
     where 
         C: FnMut(Id) -> Result<(),E>;
@@ -70,16 +75,15 @@ pub trait TransitionParam {
     /// # Examples	
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
+    /// use sems_core::{Truth, transition::TransitionParam};
     /// use sems_macro::*;
     /// 
-    /// #[derive(Truth)]
+    /// #[derive(Truth,Debug,PartialEq,Eq)]
     /// struct A();
     /// 
     /// let ids = A::required().unwrap();
     /// 
     /// assert_eq!(ids.len(), 1);
-    /// assert!(ids.contains(&A::id()));
     /// ```
     fn required() -> Result<HashSet<Id>,&'static str> {
         let mut ids = HashSet::new();

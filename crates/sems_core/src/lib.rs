@@ -17,6 +17,7 @@ type Id = TypeId;
 /// 
 /// ```
 /// use sems_core::Truth;
+/// use sems_macro::*;
 /// 
 /// #[derive(Truth)]
 /// struct A();

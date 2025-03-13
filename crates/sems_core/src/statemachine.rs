@@ -251,24 +251,131 @@ impl StateMachine {
         transition.run(&mut self.state);
     }
 
+    /// Runs a `Transition`.
+    /// 
+    /// This function will run the `Transition` if all the required truths are in the state.
+    /// If the `Transition` requires a truth that is not in the state, this function will panic.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// 
+    /// use sems_core::{StateMachine, Truth, transition::IntoTransition};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth,Debug)]
+    /// struct A();
+    /// 
+    /// let mut state_machine = StateMachine::new();
+    /// 
+    /// let create_a = || A();
+    /// let transition = create_a.into_transition().unwrap();
+    /// state_machine.run_ref_unchecked(&transition);
+    /// 
+    /// assert!(state_machine.has_truth::<A>());
+    /// ```
     pub fn run_ref_unchecked(&mut self, transition: &Transition)
     {
         transition.run(&mut self.state);
     }
     
+    /// Runs a `TransitionMut`.
+    /// 
+    /// This function will run the `TransitionMut` if all the required truths are in the state.
+    /// If the `TransitionMut` requires a truth that is not in the state, this function will panic.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sems_core::{StateMachine, Truth, transition::IntoTransitionMut};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth,Debug)]
+    /// struct A();
+    /// 
+    /// let mut state_machine = StateMachine::new();
+    /// state_machine.set_truth(A());
+    /// 
+    /// let mut vec = Vec::new();
+    /// let take_a = |a: A| _ = &mut vec.push(a);
+    /// let mut transition = take_a.into_transition_mut().unwrap();
+    /// state_machine.run_ref_mut_unchecked(&mut transition);
+    /// 
+    /// drop(transition);
+    /// 
+    /// assert_eq!(vec.len(), 1);
+    /// ```
     pub fn run_ref_mut_unchecked(&mut self, transition: &mut TransitionMut)
     {
         transition.run(&mut self.state);
     }
 
+    /// Sets a truth in the state.
+    /// 
+    /// This function will insert the truth into the state.
+    /// If a truth of the same type is already in the state, this function will replace it.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sems_core::{StateMachine, Truth};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth)]
+    /// struct A();
+    /// 
+    /// let mut state_machine = StateMachine::new();
+    /// state_machine.set_truth(A());
+    /// 
+    /// assert!(state_machine.has_truth::<A>());
+    /// ```
     pub fn set_truth<T: Truth + 'static>(&mut self, element: T) {
         self.state.insert(T::id(), Box::new(element));
     }
 
+    /// Checks if a truth is in the state.
+    /// 
+    /// This function will return true if the truth is in the state.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sems_core::{StateMachine, Truth};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth)]
+    /// struct A();
+    /// 
+    /// let mut state_machine = StateMachine::new();
+    /// 
+    /// assert!(!state_machine.has_truth::<A>());
+    /// state_machine.set_truth(A());
+    /// assert!(state_machine.has_truth::<A>());
+    /// ```
     pub fn has_truth<T: Truth + 'static>(&self) -> bool {
         self.state.contains_key(&T::id())
     }
 
+    /// Unsets a truth in the state.
+    /// 
+    /// This function will remove the truth from the state and return it.
+    /// If the truth is not in the state, this function will return None.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use sems_core::{StateMachine, Truth};
+    /// use sems_macro::*;
+    /// 
+    /// #[derive(Truth)]
+    /// struct A();
+    /// 
+    /// let mut state_machine = StateMachine::new();
+    /// 
+    /// assert!(state_machine.unset_truth::<A>().is_none());
+    /// state_machine.set_truth(A());
+    /// assert!(state_machine.unset_truth::<A>().is_some());
+    /// ```
     pub fn unset_truth<T: Truth + 'static>(&mut self) -> Option<T> {
         Option::<T>::take_from(&mut self.state)
     }

@@ -18,8 +18,9 @@ pub trait TransitionResult {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
+    /// use sems_core::{Truth, transition::TransitionResult};
     /// use sems_macro::*;
+    /// use std::collections::HashMap;
     /// 
     /// #[derive(Truth)]
     /// struct A();

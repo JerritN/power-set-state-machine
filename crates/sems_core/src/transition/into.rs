@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Transition, UnknownParameter};
 
 /// A trait that allows an object to be converted into a `Transition`.
