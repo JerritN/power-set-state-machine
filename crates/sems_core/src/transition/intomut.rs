@@ -8,18 +8,18 @@ use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Tr
 /// - The `TransitionMut` type
 /// - `FnMut` types that take up to 8 parameters of types that implement `TransitionParam`
 /// and return a type that implements `TransitionResult`
-pub trait IntoTransitionMut<In,Marker>
+pub trait IntoTransitionMut<'a,In,Marker>
 {
     /// Converts the object into a `TransitionMut`.
     /// 
     /// This function will convert the object into a `TransitionMut`.
     /// If the object cannot be converted into a `TransitionMut`, this function will return an error.
-    fn into_transition_mut(self) -> Result<TransitionMut,&'static str>;
+    fn into_transition_mut(self) -> Result<TransitionMut<'a>,&'static str>;
 }
 
-impl IntoTransitionMut<UnknownParameter,()> for Transition
+impl<'a> IntoTransitionMut<'a,UnknownParameter,()> for Transition<'a>
 {
-    fn into_transition_mut(self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             self.func,
             self.requires
@@ -27,19 +27,19 @@ impl IntoTransitionMut<UnknownParameter,()> for Transition
     }
 }
 
-impl IntoTransitionMut<UnknownParameter,()> for TransitionMut
+impl<'a> IntoTransitionMut<'a,UnknownParameter,()> for TransitionMut<'a>
 {
-    fn into_transition_mut(self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(self)
     }
 }
 
-impl<Res,Fun> IntoTransitionMut<(),()> for Fun
+impl<'a,Res,Fun> IntoTransitionMut<'a,(),()> for Fun
 where 
     Res: TransitionResult,
-    Fun: FnMut() -> Res + 'static
+    Fun: FnMut() -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let res = self();
@@ -50,13 +50,13 @@ where
     }
 }
 
-impl<A,Res,Fun> IntoTransitionMut<A,SingleMarker> for Fun
+impl<'a,A,Res,Fun> IntoTransitionMut<'a,A,SingleMarker> for Fun
 where 
     A: TransitionParam,
     Res: TransitionResult,
-    Fun: FnMut(A) -> Res + 'static
+    Fun: FnMut(A) -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let p = <A>::take_from(args);
@@ -68,14 +68,14 @@ where
     }
 }
 
-impl<A,B,Res,Fun> IntoTransitionMut<(A,B),()> for Fun
+impl<'a,A,B,Res,Fun> IntoTransitionMut<'a,(A,B),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     Res: TransitionResult,
-    Fun: FnMut(A,B) -> Res + 'static
+    Fun: FnMut(A,B) -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let (p1,p2) = <(A,B)>::take_from(args);
@@ -87,15 +87,15 @@ where
     }
 }
 
-impl<A,B,C,Res,Fun> IntoTransitionMut<(A,B,C),()> for Fun
+impl<'a,A,B,C,Res,Fun> IntoTransitionMut<'a,(A,B,C),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     C: TransitionParam,
     Res: TransitionResult,
-    Fun: FnMut(A,B,C) -> Res + 'static
+    Fun: FnMut(A,B,C) -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let (p1,p2,p3) = <(A,B,C)>::take_from(args);
@@ -107,16 +107,16 @@ where
     }
 }
 
-impl<A,B,C,D,Res,Fun> IntoTransitionMut<(A,B,C,D),()> for Fun
+impl<'a,A,B,C,D,Res,Fun> IntoTransitionMut<'a,(A,B,C,D),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     C: TransitionParam,
     D: TransitionParam,
     Res: TransitionResult,
-    Fun: FnMut(A,B,C,D) -> Res + 'static
+    Fun: FnMut(A,B,C,D) -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let (p1,p2,p3,p4) = <(A,B,C,D)>::take_from(args);
@@ -128,7 +128,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,Res,Fun> IntoTransitionMut<(A,B,C,D,E),()> for Fun
+impl<'a,A,B,C,D,E,Res,Fun> IntoTransitionMut<'a,(A,B,C,D,E),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -136,9 +136,9 @@ where
     D: TransitionParam,
     E: TransitionParam,
     Res: TransitionResult,
-    Fun: FnMut(A,B,C,D,E) -> Res + 'static
+    Fun: FnMut(A,B,C,D,E) -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let (p1,p2,p3,p4,p5) = <(A,B,C,D,E)>::take_from(args);
@@ -150,7 +150,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,Res,Fun> IntoTransitionMut<(A,B,C,D,E,F),()> for Fun
+impl<'a,A,B,C,D,E,F,Res,Fun> IntoTransitionMut<'a,(A,B,C,D,E,F),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -159,9 +159,9 @@ where
     E: TransitionParam,
     F: TransitionParam,
     Res: TransitionResult,
-    Fun: FnMut(A,B,C,D,E,F) -> Res + 'static
+    Fun: FnMut(A,B,C,D,E,F) -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let (p1,p2,p3,p4,p5,p6) = <(A,B,C,D,E,F)>::take_from(args);
@@ -173,7 +173,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,G,Res,Fun> IntoTransitionMut<(A,B,C,D,E,F,G),()> for Fun
+impl<'a,A,B,C,D,E,F,G,Res,Fun> IntoTransitionMut<'a,(A,B,C,D,E,F,G),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -183,9 +183,9 @@ where
     F: TransitionParam,
     G: TransitionParam,
     Res: TransitionResult,
-    Fun: FnMut(A,B,C,D,E,F,G) -> Res + 'static
+    Fun: FnMut(A,B,C,D,E,F,G) -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let (p1,p2,p3,p4,p5,p6,p7) = <(A,B,C,D,E,F,G)>::take_from(args);
@@ -197,7 +197,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,G,H,Res,Fun> IntoTransitionMut<(A,B,C,D,E,F,G,H),()> for Fun
+impl<'a,A,B,C,D,E,F,G,H,Res,Fun> IntoTransitionMut<'a,(A,B,C,D,E,F,G,H),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -208,9 +208,9 @@ where
     G: TransitionParam,
     H: TransitionParam,
     Res: TransitionResult,
-    Fun: FnMut(A,B,C,D,E,F,G,H) -> Res + 'static
+    Fun: FnMut(A,B,C,D,E,F,G,H) -> Res + 'a
 {
-    fn into_transition_mut(mut self) -> Result<TransitionMut,&'static str> {
+    fn into_transition_mut(mut self) -> Result<TransitionMut<'a>,&'static str> {
         Ok(TransitionMut::new(
             move |args| {
                 let (p1,p2,p3,p4,p5,p6,p7,p8) = <(A,B,C,D,E,F,G,H)>::take_from(args);

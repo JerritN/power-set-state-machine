@@ -89,10 +89,10 @@ impl StateMachine {
     /// state_machine.set_truth(A());
     /// assert!(state_machine.can_run(&consume_a).unwrap());
     /// ```
-    pub fn can_run<T,In,Marker>(&self, _: &T) -> Result<bool,&'static str>
+    pub fn can_run<'a,T,In,Marker>(&self, _: &T) -> Result<bool,&'static str>
     where 
         In: TransitionParam,
-        T: IntoTransitionOnce<In,Marker>
+        T: IntoTransitionOnce<'a,In,Marker>
     {
         Ok(In::required()?.iter().all(|id| self.state.contains_key(id)))
     }
@@ -210,9 +210,9 @@ impl StateMachine {
     /// 
     /// assert_eq!(a.0, 6);
     /// ```
-    pub fn run<T,In,Marker>(&mut self, transition: T) -> Result<(),&'static str>
+    pub fn run<'a,T,In,Marker>(&mut self, transition: T) -> Result<(),&'static str>
     where 
-        T: IntoTransitionOnce<In,Marker>
+        T: IntoTransitionOnce<'a,In,Marker>
     {
         let transition = transition.into_transition_once()?;
         if transition.requires().iter().all(|id| self.state.contains_key(id)) {

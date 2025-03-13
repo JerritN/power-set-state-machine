@@ -36,9 +36,9 @@ pub use dict::Dictionary;
 /// 
 /// assert!(state_machine.has_truth::<A>());
 /// ```
-pub type TransitionDictionary<K> = Dictionary<K, TransitionMut>;
+pub type TransitionDictionary<'a,K> = Dictionary<K, TransitionMut<'a>>;
 
-impl<K: Hash + Eq + Clone> TransitionDictionary<K> {
+impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     /// Returns a dictionary to all transitions that can be run in the given state.
     /// 
     /// This function will return a dictionary of references to all transitions in this dictionary
@@ -74,7 +74,7 @@ impl<K: Hash + Eq + Clone> TransitionDictionary<K> {
     /// assert!(runnables.has(&"insert_a"));
     /// assert!(!runnables.has(&"use_a"));
     /// ```
-    pub fn runnable_transitions(&mut self, state: &StateMachine) -> Dictionary<K, &mut TransitionMut> {
+    pub fn runnable_transitions(&mut self, state: &StateMachine) -> Dictionary<K, &mut TransitionMut<'a>> {
         let mut runnables = Dictionary::new();
 
         for (key, transition) in &mut self.entries {
@@ -125,14 +125,14 @@ impl<K: Hash + Eq + Clone> TransitionDictionary<K> {
     /// ```
     pub fn add_transition<T,In,Marker>(&mut self, key: K, transition: T) -> Result<Option<TransitionMut>,&'static str>
     where 
-        T: IntoTransitionMut<In,Marker>
+        T: IntoTransitionMut<'a,In,Marker>
     {
         let transition = transition.into_transition_mut()?;
         Ok(self.insert(key, transition))
     }
 }
 
-impl<K: Hash + Eq + Clone> Dictionary<K, &mut TransitionMut> {
+impl<'a,K: Hash + Eq + Clone> Dictionary<K, &mut TransitionMut<'a>> {
     /// Runs a transition in this dictionary.
     /// 
     /// This function will run the transition in this dictionary with the given key in the given

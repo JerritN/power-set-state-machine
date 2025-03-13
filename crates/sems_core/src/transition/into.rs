@@ -9,64 +9,64 @@ use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Tr
 /// - The `Transition` type
 /// - `Fn` types that take up to 8 parameters of types that implement `TransitionParam`
 /// and return a type that implements `TransitionResult`
-pub trait IntoTransition<In,Marker>
+pub trait IntoTransition<'a,In,Marker>
 {
     /// Converts the object into a `Transition`.
     /// 
     /// This function will convert the object into a `Transition`.
     /// If the object cannot be converted into a `Transition`, this function will return an error.
-    fn into_transition(self) -> Result<Transition,&'static str>;
+    fn into_transition(self) -> Result<Transition<'a>,&'static str>;
 }
 
-impl IntoTransition<UnknownParameter,()> for Transition
+impl<'a> IntoTransition<'a,UnknownParameter,()> for Transition<'a>
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(self)
     }
 }
 
-impl<Res,Fun> IntoTransition<(),()> for Fun
+impl<'a,Res,Fun> IntoTransition<'a,(),()> for Fun
 where 
     Res: TransitionResult,
-    Fun: Fn() -> Res + 'static
+    Fun: Fn() -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
                 let res = self();
                 res.insert_into(args);
             },
-            HashSet::new()
+            <()>::required()?
         ))
     }
 }
 
-impl<A,Res,Fun> IntoTransition<A,SingleMarker> for Fun
+impl<'a,A,Res,Fun> IntoTransition<'a,(A,),SingleMarker> for Fun
 where 
     A: TransitionParam,
     Res: TransitionResult,
-    Fun: Fn(A) -> Res + 'static
+    Fun: Fn(A) -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
-                let p = <A>::take_from(args);
-                let res = self(p);
+                let p = <(A,)>::take_from(args);
+                let res = self(p.0);
                 res.insert_into(args);
             },
-            A::required()?
+            <(A,)>::required()?
         ))
     }
 }
 
-impl<A,B,Res,Fun> IntoTransition<(A,B),()> for Fun
+impl<'a,A,B,Res,Fun> IntoTransition<'a,(A,B),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     Res: TransitionResult,
-    Fun: Fn(A,B) -> Res + 'static
+    Fun: Fn(A,B) -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
                 let p = <(A,B)>::take_from(args);
@@ -78,15 +78,15 @@ where
     }
 }
 
-impl<A,B,C,Res,Fun> IntoTransition<(A,B,C),()> for Fun
+impl<'a,A,B,C,Res,Fun> IntoTransition<'a,(A,B,C),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     C: TransitionParam,
     Res: TransitionResult,
-    Fun: Fn(A,B,C) -> Res + 'static
+    Fun: Fn(A,B,C) -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
                 let p = <(A,B,C)>::take_from(args);
@@ -98,16 +98,16 @@ where
     }
 }
 
-impl<A,B,C,D,Res,Fun> IntoTransition<(A,B,C,D),()> for Fun
+impl<'a,A,B,C,D,Res,Fun> IntoTransition<'a,(A,B,C,D),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     C: TransitionParam,
     D: TransitionParam,
     Res: TransitionResult,
-    Fun: Fn(A,B,C,D) -> Res + 'static
+    Fun: Fn(A,B,C,D) -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
                 let p = <(A,B,C,D)>::take_from(args);
@@ -119,7 +119,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,Res,Fun> IntoTransition<(A,B,C,D,E),()> for Fun
+impl<'a,A,B,C,D,E,Res,Fun> IntoTransition<'a,(A,B,C,D,E),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -127,9 +127,9 @@ where
     D: TransitionParam,
     E: TransitionParam,
     Res: TransitionResult,
-    Fun: Fn(A,B,C,D,E) -> Res + 'static
+    Fun: Fn(A,B,C,D,E) -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
                 let p = <(A,B,C,D,E)>::take_from(args);
@@ -141,7 +141,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,Res,Fun> IntoTransition<(A,B,C,D,E,F),()> for Fun
+impl<'a,A,B,C,D,E,F,Res,Fun> IntoTransition<'a,(A,B,C,D,E,F),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -150,9 +150,9 @@ where
     E: TransitionParam,
     F: TransitionParam,
     Res: TransitionResult,
-    Fun: Fn(A,B,C,D,E,F) -> Res + 'static
+    Fun: Fn(A,B,C,D,E,F) -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
                 let p = <(A,B,C,D,E,F)>::take_from(args);
@@ -164,7 +164,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,G,Res,Fun> IntoTransition<(A,B,C,D,E,F,G),()> for Fun
+impl<'a,A,B,C,D,E,F,G,Res,Fun> IntoTransition<'a,(A,B,C,D,E,F,G),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -174,9 +174,9 @@ where
     F: TransitionParam,
     G: TransitionParam,
     Res: TransitionResult,
-    Fun: Fn(A,B,C,D,E,F,G) -> Res + 'static
+    Fun: Fn(A,B,C,D,E,F,G) -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
                 let p = <(A,B,C,D,E,F,G)>::take_from(args);
@@ -188,7 +188,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,G,H,Res,Fun> IntoTransition<(A,B,C,D,E,F,G,H),()> for Fun
+impl<'a,A,B,C,D,E,F,G,H,Res,Fun> IntoTransition<'a,(A,B,C,D,E,F,G,H),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -199,9 +199,9 @@ where
     G: TransitionParam,
     H: TransitionParam,
     Res: TransitionResult,
-    Fun: Fn(A,B,C,D,E,F,G,H) -> Res + 'static
+    Fun: Fn(A,B,C,D,E,F,G,H) -> Res + 'a
 {
-    fn into_transition(self) -> Result<Transition,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
         Ok(Transition::new(
             move |args| {
                 let p = <(A,B,C,D,E,F,G,H)>::take_from(args);

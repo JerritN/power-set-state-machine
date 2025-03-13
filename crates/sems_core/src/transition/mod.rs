@@ -24,8 +24,8 @@ pub struct UnknownParameter();
 /// This transition is a side-effect free transition.
 /// For transitions that have side-effects, see `TransitionMut`.
 /// For transitions that can only be run once, see `TransitionOnce`.
-pub struct Transition {
-    pub(crate) func: Box<dyn Fn(&mut State)>,
+pub struct Transition<'a> {
+    pub(crate) func: Box<dyn Fn(&mut State) + 'a>,
     pub(crate) requires: HashSet<crate::Id>
 }
 
@@ -37,8 +37,8 @@ pub struct Transition {
 /// This transition is a transition that can have side-effects.
 /// For transitions that are side-effect free, see `Transition`.
 /// For transitions that can only be run once, see `TransitionOnce`.
-pub struct TransitionMut {
-    pub(crate) func: Box<dyn FnMut(&mut State)>,
+pub struct TransitionMut<'a> {
+    pub(crate) func: Box<dyn FnMut(&mut State) + 'a>,
     pub(crate) requires: HashSet<crate::Id>
 }
 
@@ -51,15 +51,15 @@ pub struct TransitionMut {
 /// For transitions that are side-effect free, see `Transition`.
 /// For transitions that have side-effects, see `TransitionMut`.
 
-pub struct TransitionOnce {
-    pub(crate) func: Box<dyn FnOnce(&mut State)>,
+pub struct TransitionOnce<'a> {
+    pub(crate) func: Box<dyn FnOnce(&mut State) + 'a>,
     pub(crate) requires: HashSet<crate::Id>
 }
 
-impl Transition {
+impl<'a> Transition<'a> {
     pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
     where 
-        F: Fn(&mut State) + 'static
+        F: Fn(&mut State) + 'a
     {
         Self {
             func: Box::new(func),
@@ -76,10 +76,10 @@ impl Transition {
     }
 }
 
-impl TransitionMut {
+impl<'a> TransitionMut<'a> {
     pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
     where 
-        F: FnMut(&mut State) + 'static
+        F: FnMut(&mut State) + 'a
     {
         Self {
             func: Box::new(func),
@@ -96,10 +96,10 @@ impl TransitionMut {
     }
 }
 
-impl TransitionOnce {
+impl<'a> TransitionOnce<'a> {
     pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
     where 
-        F: FnOnce(&mut State) + 'static
+        F: FnOnce(&mut State) + 'a
     {
         Self {
             func: Box::new(func),

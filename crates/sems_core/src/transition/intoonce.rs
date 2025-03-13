@@ -9,18 +9,18 @@ use super::{params::TransitionParam, results::TransitionResult, SingleMarker, Tr
 /// - The `TransitionOnce` type
 /// - `FnOnce` types that take up to 8 parameters of types that implement `TransitionParam`
 /// and return a type that implements `TransitionResult`
-pub trait IntoTransitionOnce<In,Marker>
+pub trait IntoTransitionOnce<'a,In,Marker>
 {
     /// Converts the object into a `TransitionOnce`.
     /// 
     /// This function will convert the object into a `TransitionOnce`.
     /// If the object cannot be converted into a `TransitionOnce`, this function will return an error.
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str>;
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str>;
 }
 
-impl IntoTransitionOnce<UnknownParameter,()> for Transition
+impl<'a> IntoTransitionOnce<'a,UnknownParameter,()> for Transition<'a>
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             self.func,
             self.requires
@@ -28,29 +28,29 @@ impl IntoTransitionOnce<UnknownParameter,()> for Transition
     }
 }
 
-impl IntoTransitionOnce<UnknownParameter,()> for TransitionMut
+impl<'a> IntoTransitionOnce<'a,UnknownParameter,()> for TransitionMut<'a>
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(mut self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
-            self.func,
+            move |args| (self.func)(args),
             self.requires
         ))
     }
 }
 
-impl IntoTransitionOnce<UnknownParameter,()> for TransitionOnce
+impl<'a> IntoTransitionOnce<'a,UnknownParameter,()> for TransitionOnce<'a>
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(self)
     }
 }
 
-impl<Res,Fun> IntoTransitionOnce<(),()> for Fun
+impl<'a,Res,Fun> IntoTransitionOnce<'a,(),()> for Fun
 where 
     Res: TransitionResult,
-    Fun: FnOnce() -> Res + 'static
+    Fun: FnOnce() -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let res = self();
@@ -61,13 +61,13 @@ where
     }
 }
 
-impl<A,Res,Fun> IntoTransitionOnce<A,SingleMarker> for Fun
+impl<'a,A,Res,Fun> IntoTransitionOnce<'a,A,SingleMarker> for Fun
 where 
     A: TransitionParam,
     Res: TransitionResult,
-    Fun: FnOnce(A) -> Res + 'static
+    Fun: FnOnce(A) -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let p = <A>::take_from(args);
@@ -79,14 +79,14 @@ where
     }
 }
 
-impl<A,B,Res,Fun> IntoTransitionOnce<(A,B),()> for Fun
+impl<'a,A,B,Res,Fun> IntoTransitionOnce<'a,(A,B),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     Res: TransitionResult,
-    Fun: FnOnce(A,B) -> Res + 'static
+    Fun: FnOnce(A,B) -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let p = <(A,B)>::take_from(args);
@@ -98,15 +98,15 @@ where
     }
 }
 
-impl<A,B,C,Res,Fun> IntoTransitionOnce<(A,B,C),()> for Fun
+impl<'a,A,B,C,Res,Fun> IntoTransitionOnce<'a,(A,B,C),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     C: TransitionParam,
     Res: TransitionResult,
-    Fun: FnOnce(A,B,C) -> Res + 'static
+    Fun: FnOnce(A,B,C) -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let p = <(A,B,C)>::take_from(args);
@@ -118,16 +118,16 @@ where
     }
 }
 
-impl<A,B,C,D,Res,Fun> IntoTransitionOnce<(A,B,C,D),()> for Fun
+impl<'a,A,B,C,D,Res,Fun> IntoTransitionOnce<'a,(A,B,C,D),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
     C: TransitionParam,
     D: TransitionParam,
     Res: TransitionResult,
-    Fun: FnOnce(A,B,C,D) -> Res + 'static
+    Fun: FnOnce(A,B,C,D) -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let p = <(A,B,C,D)>::take_from(args);
@@ -139,7 +139,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,Res,Fun> IntoTransitionOnce<(A,B,C,D,E),()> for Fun
+impl<'a,A,B,C,D,E,Res,Fun> IntoTransitionOnce<'a,(A,B,C,D,E),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -147,9 +147,9 @@ where
     D: TransitionParam,
     E: TransitionParam,
     Res: TransitionResult,
-    Fun: FnOnce(A,B,C,D,E) -> Res + 'static
+    Fun: FnOnce(A,B,C,D,E) -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let p = <(A,B,C,D,E)>::take_from(args);
@@ -161,7 +161,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,Res,Fun> IntoTransitionOnce<(A,B,C,D,E,F),()> for Fun
+impl<'a,A,B,C,D,E,F,Res,Fun> IntoTransitionOnce<'a,(A,B,C,D,E,F),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -170,9 +170,9 @@ where
     E: TransitionParam,
     F: TransitionParam,
     Res: TransitionResult,
-    Fun: FnOnce(A,B,C,D,E,F) -> Res + 'static
+    Fun: FnOnce(A,B,C,D,E,F) -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let p = <(A,B,C,D,E,F)>::take_from(args);
@@ -184,7 +184,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,G,Res,Fun> IntoTransitionOnce<(A,B,C,D,E,F,G),()> for Fun
+impl<'a,A,B,C,D,E,F,G,Res,Fun> IntoTransitionOnce<'a,(A,B,C,D,E,F,G),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -194,9 +194,9 @@ where
     F: TransitionParam,
     G: TransitionParam,
     Res: TransitionResult,
-    Fun: FnOnce(A,B,C,D,E,F,G) -> Res + 'static
+    Fun: FnOnce(A,B,C,D,E,F,G) -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let p = <(A,B,C,D,E,F,G)>::take_from(args);
@@ -208,7 +208,7 @@ where
     }
 }
 
-impl<A,B,C,D,E,F,G,H,Res,Fun> IntoTransitionOnce<(A,B,C,D,E,F,G,H),()> for Fun
+impl<'a,A,B,C,D,E,F,G,H,Res,Fun> IntoTransitionOnce<'a,(A,B,C,D,E,F,G,H),()> for Fun
 where 
     A: TransitionParam,
     B: TransitionParam,
@@ -219,9 +219,9 @@ where
     G: TransitionParam,
     H: TransitionParam,
     Res: TransitionResult,
-    Fun: FnOnce(A,B,C,D,E,F,G,H) -> Res + 'static
+    Fun: FnOnce(A,B,C,D,E,F,G,H) -> Res + 'a
 {
-    fn into_transition_once(self) -> Result<TransitionOnce,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| {
                 let p = <(A,B,C,D,E,F,G,H)>::take_from(args);
