@@ -1,7 +1,7 @@
 [package]
-name = "sems_core"
+name = "pssm_core"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sems_macro = { path = "../sems_macro" }
+sems_macro = { path = "../pssm_macro" }

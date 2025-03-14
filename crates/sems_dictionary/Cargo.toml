@@ -1,8 +1,0 @@
-[package]
-name = "sems_dictionary"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-sems_core = { path = "../sems_core" }
-sems_macro = { path = "../sems_macro" }

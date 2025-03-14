@@ -1,0 +1,8 @@
+[package]
+name = "pssm_dictionary"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sems_core = { path = "../pssm_core" }
+sems_macro = { path = "../pssm_macro" }
