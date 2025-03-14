@@ -1,7 +1,7 @@
 mod dict;
 
 use std::hash::Hash;
-use sems_core::{transition::{IntoTransitionMut, TransitionMut}, StateMachine};
+use pssm_core::{transition::{IntoTransitionMut, TransitionMut}, StateMachine};
 
 pub use dict::Dictionary;
 
@@ -14,9 +14,9 @@ pub use dict::Dictionary;
 /// # Examples
 /// 
 /// ```
-/// use sems_core::{StateMachine, Truth};
-/// use sems_macro::*;
-/// use sems_dictionary::TransitionDictionary;
+/// use pssm_core::{StateMachine, Truth};
+/// use pssm_macro::*;
+/// use pssm_dictionary::TransitionDictionary;
 /// 
 /// #[derive(Debug,Truth)]
 /// struct A();
@@ -48,9 +48,9 @@ impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
-    /// use sems_macro::Truth;
-    /// use sems_dictionary::TransitionDictionary;
+    /// use pssm_core::{StateMachine, Truth};
+    /// use pssm_macro::Truth;
+    /// use pssm_dictionary::TransitionDictionary;
     /// 
     /// #[derive(Debug,Truth)]
     /// struct A();
@@ -107,9 +107,9 @@ impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
-    /// use sems_macro::Truth;
-    /// use sems_dictionary::TransitionDictionary;
+    /// use pssm_core::{StateMachine, Truth};
+    /// use pssm_macro::Truth;
+    /// use pssm_dictionary::TransitionDictionary;
     /// 
     /// #[derive(Debug,Truth)]
     /// struct A();
@@ -141,9 +141,9 @@ impl<'a,K: Hash + Eq + Clone> Dictionary<K, &mut TransitionMut<'a>> {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
-    /// use sems_macro::Truth;
-    /// use sems_dictionary::TransitionDictionary;
+    /// use pssm_core::{StateMachine, Truth};
+    /// use pssm_macro::Truth;
+    /// use pssm_dictionary::TransitionDictionary;
     /// 
     /// #[derive(Debug,Truth)]
     /// struct A();

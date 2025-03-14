@@ -25,8 +25,8 @@ pub trait TransitionParam {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{Truth, transition::TransitionParam};
-    /// use sems_macro::*;
+    /// use pssm_core::{Truth, transition::TransitionParam};
+    /// use pssm_macro::*;
     /// use std::collections::HashMap;
     /// use std::any::Any;
     /// 
@@ -48,8 +48,8 @@ pub trait TransitionParam {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{Truth, transition::TransitionParam};
-    /// use sems_macro::*;
+    /// use pssm_core::{Truth, transition::TransitionParam};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth)]
     /// struct A();
@@ -75,8 +75,8 @@ pub trait TransitionParam {
     /// # Examples	
     /// 
     /// ```
-    /// use sems_core::{Truth, transition::TransitionParam};
-    /// use sems_macro::*;
+    /// use pssm_core::{Truth, transition::TransitionParam};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug,PartialEq,Eq)]
     /// struct A();

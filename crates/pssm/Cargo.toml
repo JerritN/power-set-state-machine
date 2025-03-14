@@ -1,8 +1,9 @@
 [package]
-name = "pssm_dictionary"
+name = "pssm"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 pssm_core = { path = "../pssm_core" }
+pssm_dictionary = { path = "../pssm_dictionary" }
 pssm_macro = { path = "../pssm_macro" }

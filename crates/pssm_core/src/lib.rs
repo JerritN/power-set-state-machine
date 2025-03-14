@@ -16,8 +16,8 @@ type Id = TypeId;
 /// # Examples
 /// 
 /// ```
-/// use sems_core::Truth;
-/// use sems_macro::*;
+/// use pssm_core::Truth;
+/// use pssm_macro::*;
 /// 
 /// #[derive(Truth)]
 /// struct A();

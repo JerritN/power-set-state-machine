@@ -18,8 +18,8 @@ pub trait TransitionResult {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{Truth, transition::TransitionResult};
-    /// use sems_macro::*;
+    /// use pssm_core::{Truth, transition::TransitionResult};
+    /// use pssm_macro::*;
     /// use std::collections::HashMap;
     /// 
     /// #[derive(Truth)]

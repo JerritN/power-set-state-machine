@@ -13,8 +13,8 @@ use crate::{transition::{IntoTransitionOnce, Transition, TransitionMut, Transiti
 /// # Examples
 /// 
 /// ```
-/// use sems_core::{StateMachine, Truth};
-/// use sems_macro::*;
+/// use pssm_core::{StateMachine, Truth};
+/// use pssm_macro::*;
 /// 
 /// #[derive(Truth)]
 /// struct A(i32);
@@ -54,7 +54,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::StateMachine;
+    /// use pssm_core::StateMachine;
     /// 
     /// let state_machine = StateMachine::new();
     /// ```
@@ -73,8 +73,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -104,8 +104,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth, transition::IntoTransition};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth, transition::IntoTransition};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -132,8 +132,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth, transition::IntoTransitionMut};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth, transition::IntoTransitionMut};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -160,8 +160,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth, transition::IntoTransitionOnce};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth, transition::IntoTransitionOnce};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -191,8 +191,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A(i32);
@@ -231,8 +231,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth, transition::IntoTransitionOnce};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth, transition::IntoTransitionOnce};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -260,8 +260,8 @@ impl StateMachine {
     /// 
     /// ```
     /// 
-    /// use sems_core::{StateMachine, Truth, transition::IntoTransition};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth, transition::IntoTransition};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -287,8 +287,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth, transition::IntoTransitionMut};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth, transition::IntoTransitionMut};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -318,8 +318,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth)]
     /// struct A();
@@ -340,8 +340,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth)]
     /// struct A();
@@ -364,8 +364,8 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use sems_core::{StateMachine, Truth};
-    /// use sems_macro::*;
+    /// use pssm_core::{StateMachine, Truth};
+    /// use pssm_macro::*;
     /// 
     /// #[derive(Truth)]
     /// struct A();

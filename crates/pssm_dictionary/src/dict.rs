@@ -8,7 +8,7 @@ use std::{collections::HashMap, hash::Hash};
 /// # Examples
 ///
 /// ```
-/// use sems_dictionary::Dictionary;
+/// use pssm_dictionary::Dictionary;
 ///
 /// let mut dict = Dictionary::new();
 ///
@@ -34,7 +34,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let dict = Dictionary::<&str, i32>::new();
     /// ```
@@ -50,7 +50,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     ///
@@ -69,7 +69,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     ///
@@ -91,7 +91,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     /// dict.insert("key", 5);
@@ -108,7 +108,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     /// dict.insert("key", 5);
@@ -128,7 +128,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::<&str, i32>::new();
     ///
@@ -146,7 +146,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     ///
@@ -167,7 +167,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     /// dict.insert("key", 5);
@@ -197,7 +197,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     /// dict.insert("key", 5);
@@ -230,7 +230,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     /// dict.insert("key", 5);
@@ -247,7 +247,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     ///
@@ -268,7 +268,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     /// dict.insert("key", 5);
@@ -298,7 +298,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     /// dict.insert("key", 5);
@@ -315,7 +315,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::<&str, i32>::new();
     ///
@@ -335,7 +335,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     /// dict.insert("key", 5);
@@ -366,7 +366,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     ///
@@ -384,7 +384,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::<&str, i32>::new();
     ///
@@ -405,7 +405,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::<&str, i32>::new();
     ///
@@ -420,7 +420,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::<&str, i32>::new();
     ///
@@ -435,7 +435,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     ///
@@ -454,7 +454,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     ///
@@ -477,7 +477,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::<&str, i32>::new();
     ///
@@ -500,7 +500,7 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     /// # Examples
     ///
     /// ```
-    /// use sems_dictionary::Dictionary;
+    /// use pssm_dictionary::Dictionary;
     ///
     /// let mut dict = Dictionary::new();
     ///

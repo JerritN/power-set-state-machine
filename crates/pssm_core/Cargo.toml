@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sems_macro = { path = "../pssm_macro" }
+pssm_macro = { path = "../pssm_macro" }
