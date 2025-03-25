@@ -4,6 +4,6 @@ pub mod prelude {
     pub use pssm_macro::Truth;
 }
 
-pub use pssm_core::*;
+pub use pssm_core::{*, transition::*};
 pub use pssm_dictionary::*;
 pub use pssm_macro::*;

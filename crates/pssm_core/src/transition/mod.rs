@@ -1,12 +1,14 @@
-use crate::State;
+use crate::{Id, State};
 use std::collections::HashSet;
 
+mod andthen;
 mod into;
 mod intomut;
 mod intoonce;
 mod params;
 mod results;
 
+pub use andthen::{AndThen, AndThenMut, AndThenOnce};
 pub use into::IntoTransition;
 pub use intomut::IntoTransitionMut;
 pub use intoonce::IntoTransitionOnce;
@@ -26,7 +28,8 @@ pub struct UnknownParameter();
 /// For transitions that can only be run once, see `TransitionOnce`.
 pub struct Transition<'a> {
     pub(crate) func: Box<dyn Fn(&mut State) + 'a>,
-    pub(crate) requires: HashSet<crate::Id>
+    pub(crate) requires: HashSet<crate::Id>,
+    pub(crate) produces: HashSet<crate::Id>
 }
 
 /// A transition is a function that can be executed on a state.
@@ -39,7 +42,8 @@ pub struct Transition<'a> {
 /// For transitions that can only be run once, see `TransitionOnce`.
 pub struct TransitionMut<'a> {
     pub(crate) func: Box<dyn FnMut(&mut State) + 'a>,
-    pub(crate) requires: HashSet<crate::Id>
+    pub(crate) requires: HashSet<crate::Id>,
+    pub(crate) produces: HashSet<crate::Id>
 }
 
 /// A transition is a function that can be executed on a state.
@@ -53,17 +57,19 @@ pub struct TransitionMut<'a> {
 
 pub struct TransitionOnce<'a> {
     pub(crate) func: Box<dyn FnOnce(&mut State) + 'a>,
-    pub(crate) requires: HashSet<crate::Id>
+    pub(crate) requires: HashSet<crate::Id>,
+    pub(crate) produces: HashSet<crate::Id>
 }
 
 impl<'a> Transition<'a> {
-    pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
+    pub(crate) fn new<F>(func: F, requires: HashSet<Id>, produces: HashSet<Id>) -> Self 
     where 
         F: Fn(&mut State) + 'a
     {
         Self {
             func: Box::new(func),
-            requires
+            requires,
+            produces
         }
     }
 
@@ -71,19 +77,20 @@ impl<'a> Transition<'a> {
         (self.func)(state);
     }
 
-    pub(crate) fn requires(&self) -> &HashSet<crate::Id> {
+    pub(crate) fn requires(&self) -> &HashSet<Id> {
         &self.requires
     }
 }
 
 impl<'a> TransitionMut<'a> {
-    pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
+    pub(crate) fn new<F>(func: F, requires: HashSet<Id>, produces: HashSet<Id>) -> Self 
     where 
         F: FnMut(&mut State) + 'a
     {
         Self {
             func: Box::new(func),
-            requires
+            requires,
+            produces
         }
     }
 
@@ -91,19 +98,20 @@ impl<'a> TransitionMut<'a> {
         (self.func)(state);
     }
 
-    pub(crate) fn requires(&self) -> &HashSet<crate::Id> {
+    pub(crate) fn requires(&self) -> &HashSet<Id> {
         &self.requires
     }
 }
 
 impl<'a> TransitionOnce<'a> {
-    pub(crate) fn new<F>(func: F, requires: HashSet<crate::Id>) -> Self 
+    pub(crate) fn new<F>(func: F, requires: HashSet<Id>, produces: HashSet<Id>) -> Self 
     where 
         F: FnOnce(&mut State) + 'a
     {
         Self {
             func: Box::new(func),
-            requires
+            requires,
+            produces
         }
     }
 

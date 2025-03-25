@@ -23,7 +23,8 @@ impl<'a> IntoTransitionOnce<'a,UnknownParameter,()> for Transition<'a>
     fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             self.func,
-            self.requires
+            self.requires,
+            self.produces
         ))
     }
 }
@@ -33,7 +34,8 @@ impl<'a> IntoTransitionOnce<'a,UnknownParameter,()> for TransitionMut<'a>
     fn into_transition_once(mut self) -> Result<TransitionOnce<'a>,&'static str> {
         Ok(TransitionOnce::new(
             move |args| (self.func)(args),
-            self.requires
+            self.requires,
+            self.produces
         ))
     }
 }
@@ -56,7 +58,8 @@ where
                 let res = self();
                 res.insert_into(args);
             },
-            <()>::required()?
+            <()>::required()?,
+            Res::produces()?
         ))
     }
 }
@@ -74,7 +77,8 @@ where
                 let res = self(p);
                 res.insert_into(args);
             },
-            A::required()?
+            A::required()?,
+            Res::produces()?
         ))
     }
 }
@@ -93,7 +97,8 @@ where
                 let res = self(p.0,p.1);
                 res.insert_into(args);
             },
-            <(A,B)>::required()?
+            <(A,B)>::required()?,
+            Res::produces()?
         ))
     }
 }
@@ -113,7 +118,8 @@ where
                 let res = self(p.0,p.1,p.2);
                 res.insert_into(args);
             },
-            <(A,B,C)>::required()?
+            <(A,B,C)>::required()?,
+            Res::produces()?
         ))
     }
 }
@@ -134,7 +140,8 @@ where
                 let res = self(p.0,p.1,p.2,p.3);
                 res.insert_into(args);
             },
-            <(A,B,C,D)>::required()?
+            <(A,B,C,D)>::required()?,
+            Res::produces()?
         ))
     }
 }
@@ -156,7 +163,8 @@ where
                 let res = self(p.0,p.1,p.2,p.3,p.4);
                 res.insert_into(args);
             },
-            <(A,B,C,D,E)>::required()?
+            <(A,B,C,D,E)>::required()?,
+            Res::produces()?
         ))
     }
 }
@@ -179,7 +187,8 @@ where
                 let res = self(p.0,p.1,p.2,p.3,p.4,p.5);
                 res.insert_into(args);
             },
-            <(A,B,C,D,E,F)>::required()?
+            <(A,B,C,D,E,F)>::required()?,
+            Res::produces()?
         ))
     }
 }
@@ -203,7 +212,8 @@ where
                 let res = self(p.0,p.1,p.2,p.3,p.4,p.5,p.6);
                 res.insert_into(args);
             },
-            <(A,B,C,D,E,F,G)>::required()?
+            <(A,B,C,D,E,F,G)>::required()?,
+            Res::produces()?
         ))
     }
 }
@@ -228,7 +238,8 @@ where
                 let res = self(p.0,p.1,p.2,p.3,p.4,p.5,p.6,p.7);
                 res.insert_into(args);
             },
-            <(A,B,C,D,E,F,G,H)>::required()?
+            <(A,B,C,D,E,F,G,H)>::required()?,
+            Res::produces()?
         ))
     }
 }
