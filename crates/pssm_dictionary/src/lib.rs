@@ -132,43 +132,32 @@ impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     }
 }
 
-impl<'a,K: Hash + Eq + Clone> Dictionary<K, &mut TransitionMut<'a>> {
-    /// Runs a transition in this dictionary.
-    /// 
-    /// This function will run the transition in this dictionary with the given key in the given
-    /// state. If the transition does not exist in this dictionary, this function will return None.
-    /// 
-    /// # Examples
-    /// 
-    /// ```
-    /// use pssm_core::{StateMachine, Truth};
-    /// use pssm_macro::Truth;
-    /// use pssm_dictionary::TransitionDictionary;
-    /// 
-    /// #[derive(Debug,Truth)]
-    /// struct A();
-    /// 
-    /// fn insert_a() -> A {
-    ///    A()
-    /// }
-    /// 
-    /// let mut state_machine = StateMachine::new();
-    /// 
-    /// let mut transitions = TransitionDictionary::new();
-    /// transitions.add_transition("insert_a", insert_a).unwrap();
-    /// 
-    /// transitions
-    ///     .runnable_transitions(&state_machine)
-    ///     .run(&"insert_a", &mut state_machine);
-    /// 
-    /// assert!(state_machine.has_truth::<A>());
-    /// ```
-    pub fn run(&mut self, key: &K, state: &mut StateMachine) -> Option<()> {
-        if let Some(transition) = self.entries.get_mut(key) {
-            state.run_ref_mut_unchecked(transition);
-            Some(())
-        } else {
-            None
-        }
-    }
+#[macro_export]
+macro_rules! transition_dictionary {
+    ($($key:ident = $val:expr),* ; $($folder:ident { $($contents:tt)* }),* $(,)? ) => {{
+        let mut dict = $crate::TransitionDictionary::new();
+        $(
+            dict.add_transition(stringify!($key).into(), $val).unwrap();
+        )*
+        $(
+            let mut folder = transition_dictionary!($($contents)*);
+            dict.insert_folder(stringify!($folder).into(), folder);
+        )*
+        dict
+    }};
+    ($($key:ident = $val:expr),* $(,)? ) => {{
+        let mut dict = $crate::TransitionDictionary::new();
+        $(
+            $dict.add_transition(stringify!($key).into(), $val).unwrap();
+        )*
+        dict
+    }};
+    ($($folder:ident { $($contents:tt)* }),* $(,)? ) => {{
+        let mut dict = $crate::TransitionDictionary::new();
+        $(
+            let mut folder = transition_dictionary!($($contents)*);
+            $dict.insert_folder(stringify!($folder).into(), folder);
+        )*
+        dict
+    }};
 }

@@ -1,5 +1,5 @@
 use crate::{Id, State};
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Debug};
 
 mod andthen;
 mod into;
@@ -121,5 +121,23 @@ impl<'a> TransitionOnce<'a> {
 
     pub(crate) fn requires(&self) -> &HashSet<crate::Id> {
         &self.requires
+    }
+}
+
+impl<'a> Debug for Transition<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(format!("Transition({}->{})", self.requires.len(), self.produces.len()).as_str())
+    }
+}
+
+impl<'a> Debug for TransitionMut<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(format!("TransitionMut({}->{})", self.requires.len(), self.produces.len()).as_str())
+    }
+}
+
+impl<'a> Debug for TransitionOnce<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(format!("TransitionOnce({}->{})", self.requires.len(), self.produces.len()).as_str())
     }
 }

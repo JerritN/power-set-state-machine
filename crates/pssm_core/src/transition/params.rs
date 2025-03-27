@@ -42,8 +42,8 @@ pub trait TransitionParam {
 
     /// Collects the required truths for this parameter.
     /// 
-    /// This function will call the given closure with the id of each required truth. If the closure
-    /// returns an error, this function will return that error.
+    /// This function will call the given closure with the id of each required truth. 
+    /// Returns an error if the collected truth is already required.
     /// 
     /// # Examples
     /// 
