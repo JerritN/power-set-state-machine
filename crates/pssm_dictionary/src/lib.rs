@@ -148,7 +148,7 @@ macro_rules! transition_dictionary {
     ($($key:ident = $val:expr),* $(,)? ) => {{
         let mut dict = $crate::TransitionDictionary::new();
         $(
-            $dict.add_transition(stringify!($key).into(), $val).unwrap();
+            dict.add_transition(stringify!($key).into(), $val).unwrap();
         )*
         dict
     }};
@@ -156,7 +156,7 @@ macro_rules! transition_dictionary {
         let mut dict = $crate::TransitionDictionary::new();
         $(
             let mut folder = transition_dictionary!($($contents)*);
-            $dict.insert_folder(stringify!($folder).into(), folder);
+            dict.insert_folder(stringify!($folder).into(), folder);
         )*
         dict
     }};
