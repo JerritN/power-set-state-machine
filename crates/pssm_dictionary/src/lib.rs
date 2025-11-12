@@ -123,7 +123,7 @@ impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     /// 
     /// assert!(transitions.has(&"insert_a"));
     /// ```
-    pub fn add_transition<T,In,Marker>(&mut self, key: K, transition: T) -> Result<Option<TransitionMut>,&'static str>
+    pub fn add_transition<T,In,Marker>(&mut self, key: K, transition: T) -> Result<Option<TransitionMut<'_>>,&'static str>
     where 
         T: IntoTransitionMut<'a,In,Marker>
     {
