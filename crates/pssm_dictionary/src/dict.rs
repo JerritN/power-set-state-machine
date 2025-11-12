@@ -520,4 +520,41 @@ impl<K: Hash + Eq, V> Dictionary<K, V> {
     pub fn iter_folders_mut(&mut self) -> impl Iterator<Item = (&K, &mut Dictionary<K, V>)> {
         self.folders.iter_mut()
     }
+
+    /// Consumes the dictionary and returns iterators over its entries and folders.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use pssm_dictionary::Dictionary;
+    /// 
+    /// let mut dict = Dictionary::new();
+    /// dict.insert("key", 5);
+    /// 
+    /// let (mut entries_iter, mut folders_iter) = dict.into_iters();
+    /// assert_eq!(entries_iter.next(), Some(("key", 5)));
+    /// assert_eq!(entries_iter.next(), None);
+    /// assert_eq!(folders_iter.next(), None);
+    /// ```
+    pub fn into_iters(self) -> (impl Iterator<Item = (K, V)>, impl Iterator<Item = (K, Dictionary<K, V>)>) {
+        (self.entries.into_iter(), self.folders.into_iter())
+    }
+
+    /// Consumes the dictionary and returns its inner HashMaps.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use pssm_dictionary::Dictionary;
+    /// 
+    /// let mut dict = Dictionary::new();
+    /// dict.insert("key", 5);
+    /// 
+    /// let (entries, folders) = dict.into_inner();
+    /// assert!(entries.contains_key(&"key"));
+    /// assert!(folders.is_empty());
+    /// ```
+    pub fn into_inner(self) -> (HashMap<K, V>, HashMap<K, Dictionary<K, V>>) {
+        (self.entries, self.folders)
+    }
 }
