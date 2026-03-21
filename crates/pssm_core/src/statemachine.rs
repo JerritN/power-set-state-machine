@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use crate::{transition::{IntoTransitionOnce, Transition, TransitionMut, TransitionOnce, TransitionParam}, State, Truth};
+use crate::{State, Truth};
+use crate::transition::{IntoTransitionOnce, Transition, TransitionMut, TransitionOnce};
+use crate::transition::function::TransitionInput;
 
 /// A state machine that has a state and can run transitions.
 /// 
@@ -89,10 +91,11 @@ impl StateMachine {
     /// state_machine.set_truth(A());
     /// assert!(state_machine.can_run(&consume_a).unwrap());
     /// ```
-    pub fn can_run<'a,T,In,Marker>(&self, _: &T) -> Result<bool,&'static str>
+    #[allow(private_bounds)]
+    pub fn can_run<'a,T,In>(&self, _: &T) -> Result<bool,&'static str>
     where 
-        In: TransitionParam,
-        T: IntoTransitionOnce<'a,In,Marker>
+        In: TransitionInput,
+        T: IntoTransitionOnce<'a,In>
     {
         Ok(In::required()?.iter().all(|id| self.state.contains_key(id)))
     }
@@ -210,9 +213,9 @@ impl StateMachine {
     /// 
     /// assert_eq!(a.0, 6);
     /// ```
-    pub fn run<'a,T,In,Marker>(&mut self, transition: T) -> Result<(),&'static str>
+    pub fn run<'a,T,In>(&mut self, transition: T) -> Result<(),&'static str>
     where 
-        T: IntoTransitionOnce<'a,In,Marker>
+        T: IntoTransitionOnce<'a,In>
     {
         let transition = transition.into_transition_once()?;
         if transition.requires().iter().all(|id| self.state.contains_key(id)) {

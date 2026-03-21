@@ -123,9 +123,9 @@ impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     /// 
     /// assert!(transitions.has(&"insert_a"));
     /// ```
-    pub fn add_transition<T,In,Marker>(&mut self, key: K, transition: T) -> Result<Option<TransitionMut<'_>>,&'static str>
+    pub fn add_transition<T,In>(&mut self, key: K, transition: T) -> Result<Option<TransitionMut<'_>>,&'static str>
     where 
-        T: IntoTransitionMut<'a,In,Marker>
+        T: IntoTransitionMut<'a,In>
     {
         let transition = transition.into_transition_mut()?;
         Ok(self.insert(key, transition))

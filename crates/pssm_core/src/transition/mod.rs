@@ -2,28 +2,19 @@ use crate::{Id, State};
 use std::{collections::HashSet, fmt::Debug};
 
 mod andthen;
+pub(crate) mod function;
 mod into;
-mod intomut;
-mod intoonce;
-mod params;
-mod results;
 
 pub use andthen::{AndThen, AndThenMut, AndThenOnce};
-pub use into::IntoTransition;
-pub use intomut::IntoTransitionMut;
-pub use intoonce::IntoTransitionOnce;
-pub use params::TransitionParam;
-pub use results::TransitionResult;
-
-pub struct SingleMarker();
-pub struct UnknownParameter();
+pub use function::Param;
+pub use into::{IntoTransitionParameterized, IntoTransitionMutParameterized, IntoTransitionOnceParameterized, IntoTransition, IntoTransitionMut, IntoTransitionOnce, UnknownInput};
 
 /// A transition is a function that can be executed on a state.
 /// 
 /// Transitions can be used to change the state of a state machine.
-/// They can be created using the `IntoTransition` trait.
+/// They can be created using the `IntoTransition` and `IntoTransitionParameterized` traits.
 /// 
-/// This transition is a side-effect free transition.
+/// This transition is side-effect free.
 /// For transitions that have side-effects, see `TransitionMut`.
 /// For transitions that can only be run once, see `TransitionOnce`.
 pub struct Transition<'a> {
@@ -35,9 +26,9 @@ pub struct Transition<'a> {
 /// A transition is a function that can be executed on a state.
 /// 
 /// Transitions can be used to change the state of a state machine.
-/// They can be created using the `IntoTransitionMut` trait.
+/// They can be created using the `IntoTransitionMut` and `IntoTransitionMutParameterized` traits.
 /// 
-/// This transition is a transition that can have side-effects.
+/// This transition can have side-effects.
 /// For transitions that are side-effect free, see `Transition`.
 /// For transitions that can only be run once, see `TransitionOnce`.
 pub struct TransitionMut<'a> {
@@ -49,9 +40,9 @@ pub struct TransitionMut<'a> {
 /// A transition is a function that can be executed on a state.
 /// 
 /// Transitions can be used to change the state of a state machine.
-/// They can be created using the `IntoTransitionOnce` trait.
+/// They can be created using the `IntoTransitionOnce` and `IntoTransitionOnceParameterized` traits.
 /// 
-/// This transition is a transition that can only be run once.
+/// This transition can only be run once.
 /// For transitions that are side-effect free, see `Transition`.
 /// For transitions that have side-effects, see `TransitionMut`.
 

@@ -12,7 +12,7 @@ fn combine_requirements(
 ) -> Result<(HashSet<Id>,HashSet<Id>),&'static str> {
     for id in requires1.intersection(&requires2) {
         if !produces1.contains(id) {
-            return Err("Both transitions require the same parameter, but the first transition does not produce it.");
+            return Err("Both transitions require the same input, but the first transition does not produce it.");
         }
     }
 
@@ -47,7 +47,7 @@ fn combine_requirements(
 /// let mut state_machine = StateMachine::new();
 /// state_machine.run(insert_a.and_then(consume_a).unwrap());
 /// ```
-pub trait AndThen<'a,InA,MarkerA> {
+pub trait AndThen<'a,InA> {
 
     /// Chains this transition with the given transition.
     /// 
@@ -74,9 +74,9 @@ pub trait AndThen<'a,InA,MarkerA> {
     /// let mut state_machine = StateMachine::new();
     /// state_machine.run(insert_a.and_then(consume_a).unwrap());
     /// ```
-    fn and_then<Next,InB,MarkerB>(self, next: Next) -> Result<Transition<'a>,&'static str>
+    fn and_then<Next,InB>(self, next: Next) -> Result<Transition<'a>,&'static str>
     where
-        Next: IntoTransition<'a,InB,MarkerB>;
+        Next: IntoTransition<'a,InB>;
 }
 
 /// A trait for chaining mutable transitions together.
@@ -108,7 +108,7 @@ pub trait AndThen<'a,InA,MarkerA> {
 /// 
 /// assert_eq!(vec.len(), 1);
 /// ```
-pub trait AndThenMut<'a,InA,MarkerA> {
+pub trait AndThenMut<'a,InA> {
     /// Chains this transition with the given transition.
     /// 
     /// This function will chain this transition with the given transition, creating a new mutable transition that runs
@@ -138,9 +138,9 @@ pub trait AndThenMut<'a,InA,MarkerA> {
     /// 
     /// assert_eq!(vec.len(), 1);
     /// ```
-    fn and_then<Next,InB,MarkerB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
+    fn and_then<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
     where
-        Next: IntoTransitionMut<'a,InB,MarkerB>;
+        Next: IntoTransitionMut<'a,InB>;
 }
 
 /// A trait for chaining transitions together.
@@ -166,7 +166,7 @@ pub trait AndThenMut<'a,InA,MarkerA> {
 /// let mut state_machine = StateMachine::new();
 /// state_machine.run(insert_a.and_then(consume_a).unwrap());
 /// ```
-pub trait AndThenOnce<'a,InA,MarkerA> {
+pub trait AndThenOnce<'a,InA> {
 
     /// Chains this transition with the given transition.
     /// 
@@ -191,17 +191,17 @@ pub trait AndThenOnce<'a,InA,MarkerA> {
     /// let mut state_machine = StateMachine::new();
     /// state_machine.run(insert_a.and_then(consume_a).unwrap());
     /// ```
-    fn and_then<Next,InB,MarkerB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
+    fn and_then<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
     where
-        Next: IntoTransitionOnce<'a,InB,MarkerB>;
+        Next: IntoTransitionOnce<'a,InB>;
 }
 
-impl<'a,I,InA,MarkerA> AndThen<'a,InA,MarkerA> for I
+impl<'a,I,InA> AndThen<'a,InA> for I
 where 
-    I: IntoTransition<'a,InA,MarkerA>
+    I: IntoTransition<'a,InA>
 {
-    fn and_then<Next,InB,MarkerB>(self, next: Next) -> Result<Transition<'a>,&'static str>
-    where Next: IntoTransition<'a,InB,MarkerB> {
+    fn and_then<Next,InB>(self, next: Next) -> Result<Transition<'a>,&'static str>
+    where Next: IntoTransition<'a,InB> {
         let t1 = self.into_transition()?;
         let t2 = next.into_transition()?;
 
@@ -218,12 +218,12 @@ where
     }
 }
 
-impl<'a,I,InA,MarkerA> AndThenMut<'a,InA,MarkerA> for I
+impl<'a,I,InA> AndThenMut<'a,InA> for I
 where 
-    I: IntoTransitionMut<'a,InA,MarkerA>
+    I: IntoTransitionMut<'a,InA>
 {
-    fn and_then<Next,InB,MarkerB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
-    where Next: IntoTransitionMut<'a,InB,MarkerB> {
+    fn and_then<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
+    where Next: IntoTransitionMut<'a,InB> {
         let mut t1 = self.into_transition_mut()?;
         let mut t2 = next.into_transition_mut()?;
 
@@ -240,12 +240,12 @@ where
     }
 }
 
-impl<'a,I,InA,MarkerA> AndThenOnce<'a,InA,MarkerA> for I
+impl<'a,I,InA> AndThenOnce<'a,InA> for I
 where 
-    I: IntoTransitionOnce<'a,InA,MarkerA>
+    I: IntoTransitionOnce<'a,InA>
 {
-    fn and_then<Next,InB,MarkerB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
-    where Next: IntoTransitionOnce<'a,InB,MarkerB> {
+    fn and_then<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
+    where Next: IntoTransitionOnce<'a,InB> {
         let t1 = self.into_transition_once()?;
         let t2 = next.into_transition_once()?;
 
