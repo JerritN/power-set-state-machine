@@ -30,9 +30,9 @@ pub use dict::Dictionary;
 /// let mut transitions = TransitionDictionary::new();
 /// transitions.add_transition("insert_a", insert_a).unwrap();
 /// 
-/// transitions
-///     .runnable_transitions(&state_machine)
-///     .run(&"insert_a", &mut state_machine);
+/// let mut runnables = transitions.runnable_transitions(&state_machine);
+/// 
+/// state_machine.run_ref_mut_unchecked(runnables.get_mut(&"insert_a").unwrap());
 /// 
 /// assert!(state_machine.has_truth::<A>());
 /// ```

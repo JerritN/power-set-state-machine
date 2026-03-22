@@ -68,7 +68,7 @@ impl<'a> IntoTransitionParameterized<'a, UnknownInput, ()> for Transition<'a>
 impl<'a,In,Param,F> IntoTransitionParameterized<'a,In,Param> for F
 where 
     In: TransitionInput,
-    Param: TransitionInput + Clone + 'a,
+    Param: Clone + 'a,
     F: TransitionFunction<In,Param> + 'a
 {
     fn into_transition_with(self, params: Param) -> Result<Transition<'a>,&'static str> {
@@ -105,7 +105,7 @@ impl<'a> IntoTransitionMutParameterized<'a, UnknownInput, ()> for Transition<'a>
 impl<'a,In,Param,F> IntoTransitionMutParameterized<'a,In,Param> for F
 where 
     In: TransitionInput,
-    Param: TransitionInput + Clone + 'a,
+    Param: Clone + 'a,
     F: TransitionFunctionMut<In,Param> + 'a
 {
     fn into_transition_mut_with(mut self, params: Param) -> Result<TransitionMut<'a>,&'static str> {
@@ -153,7 +153,7 @@ impl<'a> IntoTransitionOnceParameterized<'a, UnknownInput, ()> for Transition<'a
 impl<'a,In,Param,F> IntoTransitionOnceParameterized<'a,In,Param> for F
 where 
     In: TransitionInput,
-    Param: TransitionInput + 'a,
+    Param: 'a,
     F: TransitionFunctionOnce<In,Param> + 'a
 {
     fn into_transition_once_with(self, params: Param) -> Result<TransitionOnce<'a>,&'static str> {
