@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "pssm"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "pssm_core",
  "pssm_dictionary",
@@ -22,14 +22,14 @@ dependencies = [
 
 [[package]]
 name = "pssm_core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "pssm_macro",
 ]
 
 [[package]]
 name = "pssm_dictionary"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "pssm_core",
  "pssm_macro",
@@ -37,7 +37,7 @@ dependencies = [
 
 [[package]]
 name = "pssm_macro"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "quote",
  "syn",
