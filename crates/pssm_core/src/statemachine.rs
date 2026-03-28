@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{State, Truth};
-use crate::transition::{IntoTransitionOnce, Transition, TransitionMut, TransitionOnce};
+use crate::transition::{IntoTransitionOnce, IntoTransitionOnceParameterized, Transition, TransitionMut, TransitionOnce};
 use crate::transition::function::TransitionInput;
 
 /// A state machine that has a state and can run transitions.
@@ -218,6 +218,47 @@ impl StateMachine {
         T: IntoTransitionOnce<'a,In>
     {
         let transition = transition.into_transition_once()?;
+        if transition.requires().iter().all(|id| self.state.contains_key(id)) {
+            transition.run(&mut self.state);
+            Ok(())
+        } else {
+            Err("Missing a required truth")
+        }
+    }
+
+    /// Runs a transition with parameters.
+    /// 
+    /// This function will run the transition if all the required truths are in the state.
+    /// If the transition requires a truth that is not in the state, this function will return an error.
+    /// 
+    /// If the `IntoTransitionOnceParameterized` object can not be converted into a `TransitionOnce`, this function will return an error.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use pssm_core::{StateMachine, Truth, transition::Param};
+    /// use pssm_macro::*;
+    /// 
+    /// #[derive(Truth,Debug)]
+    /// struct A(i32);
+    /// 
+    /// fn add(a: A, Param(amount): Param<i32>) -> A {
+    ///   A(a.0 + amount)
+    /// }
+    /// 
+    /// let mut state_machine = StateMachine::new();
+    /// state_machine.set_truth(A(5));
+    /// 
+    /// state_machine.run_with(add, (10,)).unwrap();
+    /// 
+    /// let a = state_machine.unset_truth::<A>().unwrap();
+    /// assert_eq!(a.0, 15);
+    /// ```
+    pub fn run_with<'a,T,In,Param>(&mut self, transition: T, params: Param) -> Result<(),&'static str>
+    where 
+        T: IntoTransitionOnceParameterized<'a,In,Param>
+    {
+        let transition = transition.into_transition_once_with(params)?;
         if transition.requires().iter().all(|id| self.state.contains_key(id)) {
             transition.run(&mut self.state);
             Ok(())
