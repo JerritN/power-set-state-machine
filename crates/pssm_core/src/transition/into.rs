@@ -18,6 +18,12 @@ pub struct UnknownInput();
 /// - Parameters must be of type `Param<P>`.
 /// - Return type must implement `TransitionOutput`
 pub trait IntoTransitionParameterized<'a,In,Param> {
+    /// Converts this object into a `Transition` with the given parameters.
+    /// 
+    /// This function will convert this object into a `Transition` with the given parameters.
+    /// Returns an error if this object cannot be converted into a `Transition` with the given parameters.
+    /// 
+    /// For a simple way to convert a transition function with parameters into a `Transition` type, see the `into_transition_with!` macro.
     fn into_transition_with(self, params: Param) -> Result<Transition<'a>,&'static str>;
 }
 
@@ -36,6 +42,12 @@ pub trait IntoTransitionParameterized<'a,In,Param> {
 /// - Parameters must be of type `Param<P>`.
 /// - Return type must implement `TransitionOutput`
 pub trait IntoTransitionMutParameterized<'a,In,Param> {
+    /// Converts this object into a `TransitionMut` with the given parameters.
+    /// 
+    /// This function will convert this object into a `TransitionMut` with the given parameters.
+    /// Returns an error if this object cannot be converted into a `TransitionMut` with the given parameters.
+    /// 
+    /// For a simple way to convert a transition function with parameters into a `TransitionMut` type, see the `into_transition_mut_with!` macro.
     fn into_transition_mut_with(self, params: Param) -> Result<TransitionMut<'a>,&'static str>;
 }
 
@@ -55,6 +67,12 @@ pub trait IntoTransitionMutParameterized<'a,In,Param> {
 /// - Parameters must be of type `Param<P>`.
 /// - Return type must implement `TransitionOutput`
 pub trait IntoTransitionOnceParameterized<'a,In,Param> {
+    /// Converts this object into a `TransitionOnce` with the given parameters.
+    /// 
+    /// This function will convert this object into a `TransitionOnce` with the given parameters.
+    /// Returns an error if this object cannot be converted into a `TransitionOnce` with the given parameters.
+    /// 
+    /// For a simple way to convert a transition function with parameters into a `TransitionOnce` type, see the `into_transition_once_with!` macro.
     fn into_transition_once_with(self, params: Param) -> Result<TransitionOnce<'a>,&'static str>;
 }
 
@@ -236,11 +254,14 @@ where
 /// 
 /// The first argument is the transition function, and the rest of the arguments are the parameters to be passed to the transition function.
 /// 
+/// This calls `into_transition_with` on the transition function, which will convert it into a `Transition` type.
+/// If the transition function is not a valid transition function, an error will be returned.
+/// See `IntoTransitionParameterized` for more details.
+/// 
 /// # Examples
 /// 
 /// ```
-/// use pssm_core::{Truth, StateMachine, transition::{Transition, IntoTransition, IntoTransitionParameterized, Param}, into_transition_with};
-/// use pssm_macro::*;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Truth,Debug)]
 /// struct A(i32);
@@ -250,7 +271,8 @@ where
 /// }
 /// 
 /// let mut state_machine = StateMachine::new();
-/// state_machine.run(into_transition_with!(insert_a_with_param, 42).unwrap());
+/// let transition = into_transition_with!(insert_a_with_param, 42).unwrap();
+/// state_machine.run(transition);
 /// 
 /// let a = state_machine.unset_truth::<A>().unwrap();
 /// assert_eq!(a.0, 42);
@@ -266,11 +288,14 @@ macro_rules! into_transition_with {
 ///
 /// The first argument is the transition function, and the rest of the arguments are the parameters to be passed to the transition function.
 /// 
+/// This calls `into_transition_mut_with` on the transition function, which will convert it into a `TransitionMut` type.
+/// If the transition function is not a valid transition function, an error will be returned.
+/// See `IntoTransitionMutParameterized` for more details.
+/// 
 /// # Examples
 /// 
 /// ```
-/// use pssm_core::{Truth, StateMachine, transition::{TransitionMut, IntoTransitionMut, IntoTransitionMutParameterized, Param}, into_transition_mut_with};
-/// use pssm_macro::*;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Truth,Debug)]
 /// struct A(i32);
@@ -280,7 +305,8 @@ macro_rules! into_transition_with {
 /// }
 /// 
 /// let mut state_machine = StateMachine::new();
-/// state_machine.run(into_transition_mut_with!(insert_a_with_param, 42).unwrap());
+/// let transition = into_transition_mut_with!(insert_a_with_param, 42).unwrap();
+/// state_machine.run(transition);
 /// 
 /// let a = state_machine.unset_truth::<A>().unwrap();
 /// assert_eq!(a.0, 42);
@@ -295,12 +321,15 @@ macro_rules! into_transition_mut_with {
 /// A macro to convert a transition function with parameters into a `TransitionOnce` type.
 /// 
 /// The first argument is the transition function, and the rest of the arguments are the parameters to be passed to the transition function.
+/// 
+/// This calls `into_transition_once_with` on the transition function, which will convert it into a `TransitionOnce` type.
+/// If the transition function is not a valid transition function, an error will be returned.
+/// See `IntoTransitionOnceParameterized` for more details.
 ///
 /// # Examples
 ///
 /// ```
-/// use pssm_core::{Truth, StateMachine, transition::{TransitionOnce, IntoTransitionOnce, IntoTransitionOnceParameterized, Param}, into_transition_once_with};
-/// use pssm_macro::*;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Truth,Debug)]
 /// struct A(i32);
@@ -310,7 +339,8 @@ macro_rules! into_transition_mut_with {
 /// }
 /// 
 /// let mut state_machine = StateMachine::new();
-/// state_machine.run(into_transition_once_with!(insert_a_with_param, 42).unwrap());
+/// let transition = into_transition_once_with!(insert_a_with_param, 42).unwrap();
+/// state_machine.run(transition);
 /// 
 /// let a = state_machine.unset_truth::<A>().unwrap();
 /// assert_eq!(a.0, 42);

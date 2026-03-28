@@ -30,8 +30,7 @@ fn combine_requirements(
 /// # Examples
 /// 
 /// ```
-/// use pssm_core::{Truth, StateMachine, transition::{Transition, IntoTransition, AndThen}};
-/// use pssm_macro::*;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Truth,Debug)]
 /// struct A();
@@ -54,11 +53,12 @@ pub trait AndThen<'a,InA> {
     /// This function will chain this transition with the given transition, creating a new transition that runs
     /// this transition followed by the given transition.
     /// 
+    /// If both transitions require the same input, but the first transition does not produce it, an error will be returned.
+    /// 
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{Truth, StateMachine, transition::{Transition, IntoTransition, AndThen}};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -87,8 +87,7 @@ pub trait AndThen<'a,InA> {
 /// # Examples
 /// 
 /// ```
-/// use pssm_core::{Truth, StateMachine, transition::{TransitionMut, IntoTransitionMut, AndThenMut}};
-/// use pssm_macro::*;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Truth,Debug)]
 /// struct A();
@@ -104,7 +103,7 @@ pub trait AndThen<'a,InA> {
 /// };
 /// 
 /// let mut state_machine = StateMachine::new();
-/// state_machine.run(insert_a.and_then(collect_a).unwrap());
+/// state_machine.run(insert_a.and_then_mut(collect_a).unwrap());
 /// 
 /// assert_eq!(vec.len(), 1);
 /// ```
@@ -114,11 +113,12 @@ pub trait AndThenMut<'a,InA> {
     /// This function will chain this transition with the given transition, creating a new mutable transition that runs
     /// this transition followed by the given transition.
     /// 
+    /// If both transitions require the same input, but the first transition does not produce it, an error will be returned.
+    /// 
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{Truth, StateMachine, transition::{TransitionMut, IntoTransitionMut, AndThenMut}};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     ///     
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -134,11 +134,11 @@ pub trait AndThenMut<'a,InA> {
     /// };
     /// 
     /// let mut state_machine = StateMachine::new();
-    /// state_machine.run(insert_a.and_then(collect_a).unwrap());
+    /// state_machine.run(insert_a.and_then_mut(collect_a).unwrap());
     /// 
     /// assert_eq!(vec.len(), 1);
     /// ```
-    fn and_then<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
+    fn and_then_mut<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
     where
         Next: IntoTransitionMut<'a,InB>;
 }
@@ -151,20 +151,20 @@ pub trait AndThenMut<'a,InA> {
 /// # Examples
 /// 
 /// ```
-/// use pssm_core::{Truth, StateMachine, transition::{TransitionOnce, IntoTransitionOnce, AndThenOnce}};
-/// use pssm_macro::*;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Truth,Debug)]
 /// struct A();
 /// 
-/// let insert_a = || A();
+/// let a = A();
+/// let insert_a = move || a;
 /// 
 /// let consume_a = |a: A| {
 ///    println!("{:?}", a);
 /// };
 /// 
 /// let mut state_machine = StateMachine::new();
-/// state_machine.run(insert_a.and_then(consume_a).unwrap());
+/// state_machine.run(insert_a.and_then_once(consume_a).unwrap());
 /// ```
 pub trait AndThenOnce<'a,InA> {
 
@@ -173,25 +173,27 @@ pub trait AndThenOnce<'a,InA> {
     /// This function will chain this transition with the given transition, creating a new transition that runs
     /// this transition followed by the given transition.
     /// 
+    /// If both transitions require the same input, but the first transition does not produce it, an error will be returned.
+    /// 
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{Truth, StateMachine, transition::{TransitionOnce, IntoTransitionOnce, AndThenOnce}};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
     /// 
-    /// let insert_a = || A();
+    /// let a = A();
+    /// let insert_a = move || a;
     /// 
     /// let consume_a = |a: A| {
     ///   println!("{:?}", a);
     /// };
     /// 
     /// let mut state_machine = StateMachine::new();
-    /// state_machine.run(insert_a.and_then(consume_a).unwrap());
+    /// state_machine.run(insert_a.and_then_once(consume_a).unwrap());
     /// ```
-    fn and_then<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
+    fn and_then_once<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
     where
         Next: IntoTransitionOnce<'a,InB>;
 }
@@ -222,7 +224,7 @@ impl<'a,I,InA> AndThenMut<'a,InA> for I
 where 
     I: IntoTransitionMut<'a,InA>
 {
-    fn and_then<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
+    fn and_then_mut<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
     where Next: IntoTransitionMut<'a,InB> {
         let mut t1 = self.into_transition_mut()?;
         let mut t2 = next.into_transition_mut()?;
@@ -244,7 +246,7 @@ impl<'a,I,InA> AndThenOnce<'a,InA> for I
 where 
     I: IntoTransitionOnce<'a,InA>
 {
-    fn and_then<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
+    fn and_then_once<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
     where Next: IntoTransitionOnce<'a,InB> {
         let t1 = self.into_transition_once()?;
         let t2 = next.into_transition_once()?;

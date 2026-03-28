@@ -24,6 +24,7 @@ dependencies = [
 name = "pssm_core"
 version = "0.2.0"
 dependencies = [
+ "pssm",
  "pssm_macro",
 ]
 
@@ -31,6 +32,7 @@ dependencies = [
 name = "pssm_dictionary"
 version = "0.2.0"
 dependencies = [
+ "pssm",
  "pssm_core",
  "pssm_macro",
 ]

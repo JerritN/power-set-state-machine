@@ -16,8 +16,7 @@ type Id = TypeId;
 /// # Examples
 /// 
 /// ```
-/// use pssm_core::Truth;
-/// use pssm_macro::*;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Truth)]
 /// struct A();

@@ -15,8 +15,7 @@ use crate::transition::function::TransitionInput;
 /// # Examples
 /// 
 /// ```
-/// use pssm_core::{StateMachine, Truth};
-/// use pssm_macro::*;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Truth)]
 /// struct A(i32);
@@ -24,8 +23,8 @@ use crate::transition::function::TransitionInput;
 /// #[derive(Truth)]
 /// struct B(i32);
 /// 
-/// fn insert_a() -> A {
-///    A(5)
+/// fn insert_a(Param(param): Param<i32>) -> A {
+///    A(param)
 /// }
 /// 
 /// fn insert_b() -> B {
@@ -38,9 +37,10 @@ use crate::transition::function::TransitionInput;
 ///
 /// let mut state_machine = StateMachine::new();
 /// 
-/// state_machine.run(insert_a).unwrap();
-/// state_machine.run(insert_b).unwrap();
-/// state_machine.run(combine).unwrap();
+/// let first = into_transition_with!(insert_a, 5).unwrap();
+/// let second = insert_b.and_then(combine).unwrap();
+/// state_machine.run(first).unwrap();
+/// state_machine.run(second).unwrap();
 /// 
 /// let a = state_machine.unset_truth::<A>().unwrap();
 /// 
@@ -75,8 +75,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -107,8 +106,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth, transition::IntoTransition};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -135,8 +133,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth, transition::IntoTransitionMut};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -163,8 +160,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth, transition::IntoTransitionOnce};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -194,8 +190,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A(i32);
@@ -236,8 +231,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth, transition::Param};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A(i32);
@@ -275,8 +269,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth, transition::IntoTransitionOnce};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -303,9 +296,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// 
-    /// use pssm_core::{StateMachine, Truth, transition::IntoTransition};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -331,8 +322,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth, transition::IntoTransitionMut};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth,Debug)]
     /// struct A();
@@ -362,8 +352,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth)]
     /// struct A();
@@ -384,8 +373,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth)]
     /// struct A();
@@ -408,8 +396,7 @@ impl StateMachine {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth};
-    /// use pssm_macro::*;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Truth)]
     /// struct A();

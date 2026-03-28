@@ -3,5 +3,6 @@ name = "pssm_core"
 version = "0.2.0"
 edition = "2021"
 
-[dependencies]
+[dev-dependencies]
+pssm = { path = "../pssm" }
 pssm_macro = { path = "../pssm_macro" }

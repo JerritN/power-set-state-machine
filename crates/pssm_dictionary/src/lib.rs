@@ -14,9 +14,7 @@ pub use dict::Dictionary;
 /// # Examples
 /// 
 /// ```
-/// use pssm_core::{StateMachine, Truth};
-/// use pssm_macro::*;
-/// use pssm_dictionary::TransitionDictionary;
+/// use pssm::prelude::*;
 /// 
 /// #[derive(Debug,Truth)]
 /// struct A();
@@ -48,9 +46,7 @@ impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth};
-    /// use pssm_macro::Truth;
-    /// use pssm_dictionary::TransitionDictionary;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Debug,Truth)]
     /// struct A();
@@ -107,9 +103,7 @@ impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     /// # Examples
     /// 
     /// ```
-    /// use pssm_core::{StateMachine, Truth};
-    /// use pssm_macro::Truth;
-    /// use pssm_dictionary::TransitionDictionary;
+    /// use pssm::prelude::*;
     /// 
     /// #[derive(Debug,Truth)]
     /// struct A();

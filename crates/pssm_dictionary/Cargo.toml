@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 pssm_core = { path = "../pssm_core" }
 pssm_macro = { path = "../pssm_macro" }
+
+[dev-dependencies]
+pssm = { path = "../pssm" }
