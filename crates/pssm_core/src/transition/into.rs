@@ -231,3 +231,94 @@ where
         self.into_transition_once_with(())
     }
 }
+
+/// A macro to convert a transition function with parameters into a `Transition` type.
+/// 
+/// The first argument is the transition function, and the rest of the arguments are the parameters to be passed to the transition function.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use pssm_core::{Truth, StateMachine, transition::{Transition, IntoTransition, IntoTransitionParameterized, Param}, into_transition_with};
+/// use pssm_macro::*;
+/// 
+/// #[derive(Truth,Debug)]
+/// struct A(i32);
+/// 
+/// fn insert_a_with_param(Param(param): Param<i32>) -> A {
+///   A(param)
+/// }
+/// 
+/// let mut state_machine = StateMachine::new();
+/// state_machine.run(into_transition_with!(insert_a_with_param, 42).unwrap());
+/// 
+/// let a = state_machine.unset_truth::<A>().unwrap();
+/// assert_eq!(a.0, 42);
+/// ```
+#[macro_export]
+macro_rules! into_transition_with {
+    ($transition:ident, $($param:expr),*) => {
+        $transition.into_transition_with(($($param,)*))
+    };
+}
+
+/// A macro to convert a transition function with parameters into a `TransitionMut` type.
+///
+/// The first argument is the transition function, and the rest of the arguments are the parameters to be passed to the transition function.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use pssm_core::{Truth, StateMachine, transition::{TransitionMut, IntoTransitionMut, IntoTransitionMutParameterized, Param}, into_transition_mut_with};
+/// use pssm_macro::*;
+/// 
+/// #[derive(Truth,Debug)]
+/// struct A(i32);
+/// 
+/// fn insert_a_with_param(Param(param): Param<i32>) -> A {
+///     A(param)
+/// }
+/// 
+/// let mut state_machine = StateMachine::new();
+/// state_machine.run(into_transition_mut_with!(insert_a_with_param, 42).unwrap());
+/// 
+/// let a = state_machine.unset_truth::<A>().unwrap();
+/// assert_eq!(a.0, 42);
+/// ```
+#[macro_export]
+macro_rules! into_transition_mut_with {
+    ($transition:ident, $($param:expr),*) => {
+        $transition.into_transition_mut_with(($($param,)*))
+    };
+}
+
+/// A macro to convert a transition function with parameters into a `TransitionOnce` type.
+/// 
+/// The first argument is the transition function, and the rest of the arguments are the parameters to be passed to the transition function.
+///
+/// # Examples
+///
+/// ```
+/// use pssm_core::{Truth, StateMachine, transition::{TransitionOnce, IntoTransitionOnce, IntoTransitionOnceParameterized, Param}, into_transition_once_with};
+/// use pssm_macro::*;
+/// 
+/// #[derive(Truth,Debug)]
+/// struct A(i32);
+/// 
+/// fn insert_a_with_param(Param(param): Param<i32>) -> A {
+///     A(param)
+/// }
+/// 
+/// let mut state_machine = StateMachine::new();
+/// state_machine.run(into_transition_once_with!(insert_a_with_param, 42).unwrap());
+/// 
+/// let a = state_machine.unset_truth::<A>().unwrap();
+/// assert_eq!(a.0, 42);
+/// ```
+
+#[macro_export]
+macro_rules! into_transition_once_with {
+    ($transition:ident, $($param:expr),*) => {
+        $transition.into_transition_once_with(($($param,)*))
+    };
+}
