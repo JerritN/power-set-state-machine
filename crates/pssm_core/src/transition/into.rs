@@ -1,3 +1,8 @@
+use std::fmt::Debug;
+
+use crate::Id;
+use crate::transition::InvalidTransitionError;
+
 use super::{Transition, TransitionMut, TransitionOnce};
 use super::function::{TransitionFunction, TransitionFunctionMut, TransitionFunctionOnce, TransitionInput, TransitionOutput};
 
@@ -24,7 +29,7 @@ pub trait IntoTransitionParameterized<'a,In,Param> {
     /// Returns an error if this object cannot be converted into a `Transition` with the given parameters.
     /// 
     /// For a simple way to convert a transition function with parameters into a `Transition` type, see the `into_transition_with!` macro.
-    fn into_transition_with(self, params: Param) -> Result<Transition<'a>,&'static str>;
+    fn into_transition_with(self, params: Param) -> Result<Transition<'a>,InvalidTransitionError>;
 }
 
 /// A trait that allows an object to be converted into a `TransitionMut` with some parameters.
@@ -48,7 +53,7 @@ pub trait IntoTransitionMutParameterized<'a,In,Param> {
     /// Returns an error if this object cannot be converted into a `TransitionMut` with the given parameters.
     /// 
     /// For a simple way to convert a transition function with parameters into a `TransitionMut` type, see the `into_transition_mut_with!` macro.
-    fn into_transition_mut_with(self, params: Param) -> Result<TransitionMut<'a>,&'static str>;
+    fn into_transition_mut_with(self, params: Param) -> Result<TransitionMut<'a>,InvalidTransitionError>;
 }
 
 /// A trait that allows an object to be converted into a `TransitionOnce` with some parameters.
@@ -73,12 +78,12 @@ pub trait IntoTransitionOnceParameterized<'a,In,Param> {
     /// Returns an error if this object cannot be converted into a `TransitionOnce` with the given parameters.
     /// 
     /// For a simple way to convert a transition function with parameters into a `TransitionOnce` type, see the `into_transition_once_with!` macro.
-    fn into_transition_once_with(self, params: Param) -> Result<TransitionOnce<'a>,&'static str>;
+    fn into_transition_once_with(self, params: Param) -> Result<TransitionOnce<'a>,InvalidTransitionError>;
 }
 
 impl<'a> IntoTransitionParameterized<'a, UnknownInput, ()> for Transition<'a>
 {
-    fn into_transition_with(self, _params: ()) -> Result<Transition<'a>,&'static str> {
+    fn into_transition_with(self, _params: ()) -> Result<Transition<'a>,InvalidTransitionError> {
         Ok(self)
     }
 }
@@ -89,12 +94,13 @@ where
     Param: Clone + 'a,
     F: TransitionFunction<In,Param> + 'a
 {
-    fn into_transition_with(self, params: Param) -> Result<Transition<'a>,&'static str> {
+    fn into_transition_with(self, params: Param) -> Result<Transition<'a>,InvalidTransitionError> {
         Ok(Transition::new(
             move |args| {
-                let input = <In>::take_from(args);
+                let input = <In>::try_take_from(args)?;
                 let res = self.call(input, params.clone());
                 res.insert_into(args);
+                Ok(())
             },
             <In>::required()?,
             F::Result::produces()?
@@ -104,14 +110,14 @@ where
 
 impl<'a> IntoTransitionMutParameterized<'a, UnknownInput, ()> for TransitionMut<'a>
 {
-    fn into_transition_mut_with(self, _params: ()) -> Result<TransitionMut<'a>,&'static str> {
+    fn into_transition_mut_with(self, _params: ()) -> Result<TransitionMut<'a>,InvalidTransitionError> {
         Ok(self)
     }
 }
 
 impl<'a> IntoTransitionMutParameterized<'a, UnknownInput, ()> for Transition<'a>
 {
-    fn into_transition_mut_with(self, _params: ()) -> Result<TransitionMut<'a>,&'static str> {
+    fn into_transition_mut_with(self, _params: ()) -> Result<TransitionMut<'a>,InvalidTransitionError> {
         Ok(TransitionMut::new(
             move |args| (self.func)(args),
             self.requires,
@@ -126,12 +132,13 @@ where
     Param: Clone + 'a,
     F: TransitionFunctionMut<In,Param> + 'a
 {
-    fn into_transition_mut_with(mut self, params: Param) -> Result<TransitionMut<'a>,&'static str> {
+    fn into_transition_mut_with(mut self, params: Param) -> Result<TransitionMut<'a>,InvalidTransitionError> {
         Ok(TransitionMut::new(
             move |args| {
-                let input = <In>::take_from(args);
+                let input = <In>::try_take_from(args)?;
                 let res = self.call(input, params.clone());
                 res.insert_into(args);
+                Ok(())
             },
             <In>::required()?,
             F::Result::produces()?
@@ -141,14 +148,14 @@ where
 
 impl<'a> IntoTransitionOnceParameterized<'a, UnknownInput, ()> for TransitionOnce<'a>
 {
-    fn into_transition_once_with(self, _params: ()) -> Result<TransitionOnce<'a>,&'static str> {
+    fn into_transition_once_with(self, _params: ()) -> Result<TransitionOnce<'a>,InvalidTransitionError> {
         Ok(self)
     }
 }
 
 impl<'a> IntoTransitionOnceParameterized<'a, UnknownInput, ()> for TransitionMut<'a>
 {
-    fn into_transition_once_with(mut self, _params: ()) -> Result<TransitionOnce<'a>,&'static str> {
+    fn into_transition_once_with(mut self, _params: ()) -> Result<TransitionOnce<'a>,InvalidTransitionError> {
         Ok(TransitionOnce::new(
             move |args| (self.func)(args),
             self.requires,
@@ -159,7 +166,7 @@ impl<'a> IntoTransitionOnceParameterized<'a, UnknownInput, ()> for TransitionMut
 
 impl<'a> IntoTransitionOnceParameterized<'a, UnknownInput, ()> for Transition<'a>
 {
-    fn into_transition_once_with(self, _params: ()) -> Result<TransitionOnce<'a>,&'static str> {
+    fn into_transition_once_with(self, _params: ()) -> Result<TransitionOnce<'a>,InvalidTransitionError> {
         Ok(TransitionOnce::new(
             self.func,
             self.requires,
@@ -174,12 +181,13 @@ where
     Param: 'a,
     F: TransitionFunctionOnce<In,Param> + 'a
 {
-    fn into_transition_once_with(self, params: Param) -> Result<TransitionOnce<'a>,&'static str> {
+    fn into_transition_once_with(self, params: Param) -> Result<TransitionOnce<'a>,InvalidTransitionError> {
         Ok(TransitionOnce::new(
             move |args| {
-                let input = <In>::take_from(args);
+                let input = <In>::try_take_from(args)?;
                 let res = self.call(input, params);
                 res.insert_into(args);
+                Ok(())
             },
             <In>::required()?,
             F::Result::produces()?
@@ -195,7 +203,7 @@ where
 /// - `Fn` types that take up to 4 inputs of types that implement `TransitionInput`
 ///     and return a type that implements `TransitionOutput`.
 pub trait IntoTransition<'a,In> {
-    fn into_transition(self) -> Result<Transition<'a>,&'static str>;
+    fn into_transition(self) -> Result<Transition<'a>,InvalidTransitionError>;
 }
 
 /// A trait that allows an object to be converted into a `TransitionMut`.
@@ -207,7 +215,7 @@ pub trait IntoTransition<'a,In> {
 /// - `FnMut` types that take up to 4 inputs of types that implement `TransitionInput`
 ///    and return a type that implements `TransitionOutput`.
 pub trait IntoTransitionMut<'a,In> {
-    fn into_transition_mut(self) -> Result<TransitionMut<'a>,&'static str>;
+    fn into_transition_mut(self) -> Result<TransitionMut<'a>,InvalidTransitionError>;
 }
 
 /// A trait that allows an object to be converted into a `TransitionOnce`.
@@ -220,14 +228,14 @@ pub trait IntoTransitionMut<'a,In> {
 /// - `FnOnce` types that take up to 4 inputs of types that implement `TransitionInput`
 ///   and return a type that implements `TransitionOutput`.
 pub trait IntoTransitionOnce<'a,In> {
-    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str>;
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,InvalidTransitionError>;
 }
 
 impl<'a,In,F> IntoTransition<'a,In> for F
 where 
     F: IntoTransitionParameterized<'a, In, ()>
 {
-    fn into_transition(self) -> Result<Transition<'a>,&'static str> {
+    fn into_transition(self) -> Result<Transition<'a>,InvalidTransitionError> {
         self.into_transition_with(())
     }
 }
@@ -236,7 +244,7 @@ impl<'a,In,F> IntoTransitionMut<'a,In> for F
 where 
     F: IntoTransitionMutParameterized<'a, In, ()>
 {
-    fn into_transition_mut(self) -> Result<TransitionMut<'a>,&'static str> {
+    fn into_transition_mut(self) -> Result<TransitionMut<'a>,InvalidTransitionError> {
         self.into_transition_mut_with(())
     }
 }
@@ -245,7 +253,7 @@ impl<'a,In,F> IntoTransitionOnce<'a,In> for F
 where 
     F: IntoTransitionOnceParameterized<'a, In, ()>
 {
-    fn into_transition_once(self) -> Result<TransitionOnce<'a>,&'static str> {
+    fn into_transition_once(self) -> Result<TransitionOnce<'a>,InvalidTransitionError> {
         self.into_transition_once_with(())
     }
 }

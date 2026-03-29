@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::{State, Truth};
-use crate::transition::{IntoTransitionOnce, IntoTransitionOnceParameterized, Transition, TransitionMut, TransitionOnce};
+use crate::{State, TransitionCallError, Truth};
+use crate::transition::{InvalidTransitionError, IntoTransitionOnce, IntoTransitionOnceParameterized, Transition, TransitionError, TransitionMut, TransitionOnce};
 use crate::transition::function::TransitionInput;
 
 /// A state machine that has a state and can run transitions.
@@ -91,7 +91,7 @@ impl StateMachine {
     /// assert!(state_machine.can_run(&consume_a).unwrap());
     /// ```
     #[allow(private_bounds)]
-    pub fn can_run<'a,T,In>(&self, _: &T) -> Result<bool,&'static str>
+    pub fn can_run<'a,T,In>(&self, _: &T) -> Result<bool,InvalidTransitionError>
     where 
         In: TransitionInput,
         T: IntoTransitionOnce<'a,In>
@@ -208,17 +208,20 @@ impl StateMachine {
     /// 
     /// assert_eq!(a.0, 6);
     /// ```
-    pub fn run<'a,T,In>(&mut self, transition: T) -> Result<(),&'static str>
+    pub fn run<'a,T,In>(&mut self, transition: T) -> Result<(),TransitionCallError>
     where 
         T: IntoTransitionOnce<'a,In>
     {
         let transition = transition.into_transition_once()?;
-        if transition.requires().iter().all(|id| self.state.contains_key(id)) {
-            transition.run(&mut self.state);
-            Ok(())
-        } else {
-            Err("Missing a required truth")
-        }
+        transition.requires().iter().try_for_each(|id| {
+            if self.state.contains_key(id) {
+                Ok(())
+            } else {
+                Err(TransitionError::MissingTruth(*id))
+            }
+        })?;
+        transition.run(&mut self.state);
+        Ok(())
     }
 
     /// Runs a transition with parameters.
@@ -248,17 +251,20 @@ impl StateMachine {
     /// let a = state_machine.unset_truth::<A>().unwrap();
     /// assert_eq!(a.0, 15);
     /// ```
-    pub fn run_with<'a,T,In,Param>(&mut self, transition: T, params: Param) -> Result<(),&'static str>
+    pub fn run_with<'a,T,In,Param>(&mut self, transition: T, params: Param) -> Result<(),TransitionCallError>
     where 
         T: IntoTransitionOnceParameterized<'a,In,Param>
     {
         let transition = transition.into_transition_once_with(params)?;
-        if transition.requires().iter().all(|id| self.state.contains_key(id)) {
-            transition.run(&mut self.state);
-            Ok(())
-        } else {
-            Err("Missing a required truth")
-        }
+        transition.requires().iter().try_for_each(|id| {
+            if self.state.contains_key(id) {
+                Ok(())
+            } else {
+                Err(TransitionError::MissingTruth(*id))
+            }
+        })?;
+        transition.run(&mut self.state);
+        Ok(())
     }
 
     /// Runs a `TransitionOnce`.
@@ -403,11 +409,11 @@ impl StateMachine {
     /// 
     /// let mut state_machine = StateMachine::new();
     /// 
-    /// assert!(state_machine.unset_truth::<A>().is_none());
+    /// assert!(state_machine.unset_truth::<A>().is_err());
     /// state_machine.set_truth(A());
-    /// assert!(state_machine.unset_truth::<A>().is_some());
+    /// assert!(state_machine.unset_truth::<A>().is_ok());
     /// ```
-    pub fn unset_truth<T: Truth + 'static>(&mut self) -> Option<T> {
-        Option::<T>::take_from(&mut self.state)
+    pub fn unset_truth<T: Truth + 'static>(&mut self) -> Result<T, TransitionError> {
+        T::try_take_from(&mut self.state)
     }
 }

@@ -9,6 +9,39 @@ pub use andthen::{AndThen, AndThenMut, AndThenOnce};
 pub use function::Param;
 pub use into::{IntoTransitionParameterized, IntoTransitionMutParameterized, IntoTransitionOnceParameterized, IntoTransition, IntoTransitionMut, IntoTransitionOnce, UnknownInput};
 
+/// An Error that can occur when running a transition.
+/// 
+/// This error can occur when a transition is run on a state that does not contain all of the required truths for the transition.
+pub enum TransitionError {
+    MissingTruth(Id)
+}
+
+impl Debug for TransitionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TransitionError::MissingTruth(id) => write!(f, "A required truth is missing from the State: {:?}", id)
+        }
+    }
+}
+
+/// An Error that can occur when creating a transition from a function.
+/// 
+/// This error can occur when a function is used to create a transition,
+/// but the function requires or produces the same truth multiple times.
+pub enum InvalidTransitionError {
+    TruthRequiredMultipleTimes(Id),
+    TruthProducedMultipleTimes(Id)
+}
+
+impl Debug for InvalidTransitionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            InvalidTransitionError::TruthRequiredMultipleTimes(id) => write!(f, "Transition requires the same truth multiple times: {:?}", id),
+            InvalidTransitionError::TruthProducedMultipleTimes(id) => write!(f, "Transition produces the same truth multiple times: {:?}", id)
+        }
+    }
+}
+
 /// A transition is a function that can be executed on a state.
 /// 
 /// Transitions can be used to change the state of a state machine.
@@ -18,7 +51,7 @@ pub use into::{IntoTransitionParameterized, IntoTransitionMutParameterized, Into
 /// For transitions that have side-effects, see `TransitionMut`.
 /// For transitions that can only be run once, see `TransitionOnce`.
 pub struct Transition<'a> {
-    pub(crate) func: Box<dyn Fn(&mut State) + 'a>,
+    pub(crate) func: Box<dyn Fn(&mut State) -> Result<(), TransitionError> + 'a>,
     pub(crate) requires: HashSet<crate::Id>,
     pub(crate) produces: HashSet<crate::Id>
 }
@@ -32,7 +65,7 @@ pub struct Transition<'a> {
 /// For transitions that are side-effect free, see `Transition`.
 /// For transitions that can only be run once, see `TransitionOnce`.
 pub struct TransitionMut<'a> {
-    pub(crate) func: Box<dyn FnMut(&mut State) + 'a>,
+    pub(crate) func: Box<dyn FnMut(&mut State) -> Result<(), TransitionError> + 'a>,
     pub(crate) requires: HashSet<crate::Id>,
     pub(crate) produces: HashSet<crate::Id>
 }
@@ -47,7 +80,7 @@ pub struct TransitionMut<'a> {
 /// For transitions that have side-effects, see `TransitionMut`.
 
 pub struct TransitionOnce<'a> {
-    pub(crate) func: Box<dyn FnOnce(&mut State) + 'a>,
+    pub(crate) func: Box<dyn FnOnce(&mut State) -> Result<(), TransitionError> + 'a>,
     pub(crate) requires: HashSet<crate::Id>,
     pub(crate) produces: HashSet<crate::Id>
 }
@@ -55,7 +88,7 @@ pub struct TransitionOnce<'a> {
 impl<'a> Transition<'a> {
     pub(crate) fn new<F>(func: F, requires: HashSet<Id>, produces: HashSet<Id>) -> Self 
     where 
-        F: Fn(&mut State) + 'a
+        F: Fn(&mut State) -> Result<(), TransitionError> + 'a
     {
         Self {
             func: Box::new(func),
@@ -76,7 +109,7 @@ impl<'a> Transition<'a> {
 impl<'a> TransitionMut<'a> {
     pub(crate) fn new<F>(func: F, requires: HashSet<Id>, produces: HashSet<Id>) -> Self 
     where 
-        F: FnMut(&mut State) + 'a
+        F: FnMut(&mut State) -> Result<(), TransitionError> + 'a
     {
         Self {
             func: Box::new(func),
@@ -97,7 +130,7 @@ impl<'a> TransitionMut<'a> {
 impl<'a> TransitionOnce<'a> {
     pub(crate) fn new<F>(func: F, requires: HashSet<Id>, produces: HashSet<Id>) -> Self 
     where 
-        F: FnOnce(&mut State) + 'a
+        F: FnOnce(&mut State) -> Result<(), TransitionError> + 'a
     {
         Self {
             func: Box::new(func),

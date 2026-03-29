@@ -1,6 +1,6 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Debug};
 
-use crate::Id;
+use crate::{Id, transition::InvalidTransitionError};
 
 use super::{IntoTransition, IntoTransitionMut, IntoTransitionOnce, Transition, TransitionMut, TransitionOnce};
 
@@ -9,10 +9,10 @@ fn combine_requirements(
     produces1: HashSet<Id>,
     requires2: HashSet<Id>,
     mut produces2: HashSet<Id>
-) -> Result<(HashSet<Id>,HashSet<Id>),&'static str> {
+) -> Result<(HashSet<Id>,HashSet<Id>),AndThenError> {
     for id in requires1.intersection(&requires2) {
         if !produces1.contains(id) {
-            return Err("Both transitions require the same input, but the first transition does not produce it.");
+            return Err(AndThenError::ConflictingRequirements);
         }
     }
 
@@ -20,6 +20,26 @@ fn combine_requirements(
     produces2.extend(produces1.difference(&requires2).cloned());
 
     Ok((requires1,produces2))
+}
+
+pub enum AndThenError {
+    ConflictingRequirements,
+    IntoTransitionError(InvalidTransitionError)
+}
+
+impl From<InvalidTransitionError> for AndThenError {
+    fn from(value: InvalidTransitionError) -> Self {
+        AndThenError::IntoTransitionError(value)
+    }
+}
+
+impl Debug for AndThenError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AndThenError::ConflictingRequirements => write!(f, "Both transitions require the same input, but the first transition does not produce it."),
+            AndThenError::IntoTransitionError(e) => e.fmt(f)
+        }
+    }
 }
 
 /// A trait for chaining transitions together.
@@ -74,7 +94,7 @@ pub trait AndThen<'a,InA> {
     /// let mut state_machine = StateMachine::new();
     /// state_machine.run(insert_a.and_then(consume_a).unwrap());
     /// ```
-    fn and_then<Next,InB>(self, next: Next) -> Result<Transition<'a>,&'static str>
+    fn and_then<Next,InB>(self, next: Next) -> Result<Transition<'a>,AndThenError>
     where
         Next: IntoTransition<'a,InB>;
 }
@@ -138,7 +158,7 @@ pub trait AndThenMut<'a,InA> {
     /// 
     /// assert_eq!(vec.len(), 1);
     /// ```
-    fn and_then_mut<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
+    fn and_then_mut<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,AndThenError>
     where
         Next: IntoTransitionMut<'a,InB>;
 }
@@ -193,7 +213,7 @@ pub trait AndThenOnce<'a,InA> {
     /// let mut state_machine = StateMachine::new();
     /// state_machine.run(insert_a.and_then_once(consume_a).unwrap());
     /// ```
-    fn and_then_once<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
+    fn and_then_once<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,AndThenError>
     where
         Next: IntoTransitionOnce<'a,InB>;
 }
@@ -202,7 +222,7 @@ impl<'a,I,InA> AndThen<'a,InA> for I
 where 
     I: IntoTransition<'a,InA>
 {
-    fn and_then<Next,InB>(self, next: Next) -> Result<Transition<'a>,&'static str>
+    fn and_then<Next,InB>(self, next: Next) -> Result<Transition<'a>,AndThenError>
     where Next: IntoTransition<'a,InB> {
         let t1 = self.into_transition()?;
         let t2 = next.into_transition()?;
@@ -211,8 +231,9 @@ where
 
         Ok(Transition::new(
             move |args| {
-                (t1.func)(args);
-                (t2.func)(args);
+                (t1.func)(args)?;
+                (t2.func)(args)?;
+                Ok(())
             },
             requires,
             produces
@@ -224,7 +245,7 @@ impl<'a,I,InA> AndThenMut<'a,InA> for I
 where 
     I: IntoTransitionMut<'a,InA>
 {
-    fn and_then_mut<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,&'static str>
+    fn and_then_mut<Next,InB>(self, next: Next) -> Result<TransitionMut<'a>,AndThenError>
     where Next: IntoTransitionMut<'a,InB> {
         let mut t1 = self.into_transition_mut()?;
         let mut t2 = next.into_transition_mut()?;
@@ -233,8 +254,9 @@ where
 
         Ok(TransitionMut::new(
             move |args| {
-                (t1.func)(args);
-                (t2.func)(args);
+                (t1.func)(args)?;
+                (t2.func)(args)?;
+                Ok(())
             },
             requires,
             produces
@@ -246,7 +268,7 @@ impl<'a,I,InA> AndThenOnce<'a,InA> for I
 where 
     I: IntoTransitionOnce<'a,InA>
 {
-    fn and_then_once<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,&'static str>
+    fn and_then_once<Next,InB>(self, next: Next) -> Result<TransitionOnce<'a>,AndThenError>
     where Next: IntoTransitionOnce<'a,InB> {
         let t1 = self.into_transition_once()?;
         let t2 = next.into_transition_once()?;
@@ -255,8 +277,9 @@ where
 
         Ok(TransitionOnce::new(
             move |args| {
-                (t1.func)(args);
-                (t2.func)(args);
+                (t1.func)(args)?;
+                (t2.func)(args)?;
+                Ok(())
             },
             requires,
             produces

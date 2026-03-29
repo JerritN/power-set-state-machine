@@ -1,6 +1,6 @@
 use std::{collections::HashSet, ops::{Deref, DerefMut}};
 
-use crate::{Id, State, Truth};
+use crate::{Id, State, Truth, transition::{TransitionError, InvalidTransitionError}};
 
 /// A wrapper type for parameters passed to transition functions.
 /// 
@@ -118,21 +118,20 @@ impl_trans_fns!((I1, I2, I3, I4), (P1, P2));
 /// - `Truth` types
 /// - `Option<Truth>` types
 /// - Tuples of up to 8 `TransitionInput` types
-pub(crate) trait TransitionInput {
-    fn take_from(state: &mut State) -> Self;
+pub(crate) trait TransitionInput: Sized {
+    fn try_take_from(state: &mut State) -> Result<Self, TransitionError>;
 
     fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
     where 
         C: FnMut(Id) -> Result<(),E>;
 
-    fn required() -> Result<HashSet<Id>,&'static str> {
+    fn required() -> Result<HashSet<Id>,InvalidTransitionError> {
         let mut ids = HashSet::new();
         Self::collect_required(&mut |id| { 
-            if ids.contains(&id) {
-                Err("Transition requires the same truth multiple times")
-            } else {
-                ids.insert(id);
+            if ids.insert(id) {
                 Ok(())
+            } else {
+                Err(InvalidTransitionError::TruthRequiredMultipleTimes(id))
             }
         }).map(|_| ids)
     }
@@ -142,11 +141,10 @@ impl<T> TransitionInput for T
 where 
     T: Truth + 'static
 {
-    fn take_from(state: &mut State) -> Self {
-        *state.remove(&T::id())
-            .expect("State does not contain a required truth")
-            .downcast::<T>()
-            .expect("Invalid type stored for truth")
+    fn try_take_from(state: &mut State) -> Result<Self, TransitionError> {
+        state.remove(&T::id())
+            .ok_or_else(|| TransitionError::MissingTruth(T::id()))
+            .map(|val| *val.downcast::<T>().expect("Invalid type stored for a truth in the state"))
     }
 
     fn collect_required<C,E>(collector: &mut C) -> Result<(),E>
@@ -159,11 +157,13 @@ where
 
 impl<T> TransitionInput for Option<T> 
 where 
-    T: Truth + 'static
+    T: TransitionInput + 'static
 {
-    fn take_from(state: &mut State) -> Self {
-        state.remove(&T::id())
-            .map(|val| *val.downcast::<T>().expect("Invalid type stored for truth"))
+    fn try_take_from(state: &mut State) -> Result<Self, TransitionError> {
+        match T::try_take_from(state) {
+            Ok(val) => Ok(Some(val)),
+            Err(TransitionError::MissingTruth(_)) => Ok(None)
+        }
     }
 
     fn collect_required<C,E>(_: &mut C) -> Result<(),E>
@@ -181,8 +181,8 @@ macro_rules! impl_trans_in {
             $($T: TransitionInput,)*
         {
             #[allow(unused)]
-            fn take_from(state: &mut State) -> Self {
-                ($(<$T>::take_from(state),)*)
+            fn try_take_from(state: &mut State) -> Result<Self, TransitionError> {
+                Ok(($(<$T>::try_take_from(state)?,)*))
             }
 
             #[allow(unused)]
@@ -226,14 +226,13 @@ pub(crate) trait TransitionOutput {
     where 
         C: FnMut(Id) -> Result<(),E>;
 
-    fn produces() -> Result<HashSet<Id>,&'static str> {
+    fn produces() -> Result<HashSet<Id>,InvalidTransitionError> {
         let mut ids = HashSet::new();
         Self::collect_produces(|id| {
-            if ids.contains(&id) {
-                Err("Transition produces the same id multiple times.")
-            } else {
-                ids.insert(id);
+            if ids.insert(id) {
                 Ok(())
+            } else {
+                Err(InvalidTransitionError::TruthProducedMultipleTimes(id))
             }
         }).map(|_| ids)
     }

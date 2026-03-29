@@ -1,7 +1,7 @@
 mod dict;
 
 use std::hash::Hash;
-use pssm_core::{transition::{IntoTransitionMut, TransitionMut}, StateMachine};
+use pssm_core::{transition::{IntoTransitionMut, TransitionMut, InvalidTransitionError}, StateMachine};
 
 pub use dict::Dictionary;
 
@@ -117,7 +117,7 @@ impl<'a,K: Hash + Eq + Clone> TransitionDictionary<'a,K> {
     /// 
     /// assert!(transitions.has(&"insert_a"));
     /// ```
-    pub fn add_transition<T,In>(&mut self, key: K, transition: T) -> Result<Option<TransitionMut<'_>>,&'static str>
+    pub fn add_transition<T,In>(&mut self, key: K, transition: T) -> Result<Option<TransitionMut<'_>>,InvalidTransitionError>
     where 
         T: IntoTransitionMut<'a,In>
     {
