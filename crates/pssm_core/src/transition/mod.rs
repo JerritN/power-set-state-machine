@@ -7,7 +7,15 @@ mod into;
 
 pub use andthen::{AndThen, AndThenMut, AndThenOnce};
 pub use function::Param;
-pub use into::{IntoTransitionParameterized, IntoTransitionMutParameterized, IntoTransitionOnceParameterized, IntoTransition, IntoTransitionMut, IntoTransitionOnce, UnknownInput};
+pub use into::{
+    IntoTransition,
+    IntoTransitionMut,
+    IntoTransitionMutParameterized,
+    IntoTransitionOnce,
+    IntoTransitionOnceParameterized,
+    IntoTransitionParameterized,
+    UnknownInput,
+};
 
 /// An Error that can occur when running a transition.
 /// 
@@ -97,8 +105,8 @@ impl<'a> Transition<'a> {
         }
     }
 
-    pub(crate) fn run(&self, state: &mut State) {
-        (self.func)(state);
+    pub(crate) fn run(&self, state: &mut State) -> Result<(), TransitionError> {
+        (self.func)(state)
     }
 
     pub(crate) fn requires(&self) -> &HashSet<Id> {
@@ -118,8 +126,8 @@ impl<'a> TransitionMut<'a> {
         }
     }
 
-    pub(crate) fn run(&mut self, state: &mut State) {
-        (self.func)(state);
+    pub(crate) fn run(&mut self, state: &mut State) -> Result<(), TransitionError> {
+        (self.func)(state)
     }
 
     pub(crate) fn requires(&self) -> &HashSet<Id> {
@@ -139,8 +147,8 @@ impl<'a> TransitionOnce<'a> {
         }
     }
 
-    pub(crate) fn run(self, state: &mut State) {
-        (self.func)(state);
+    pub(crate) fn run(self, state: &mut State) -> Result<(), TransitionError> {
+        (self.func)(state)
     }
 
     pub(crate) fn requires(&self) -> &HashSet<crate::Id> {

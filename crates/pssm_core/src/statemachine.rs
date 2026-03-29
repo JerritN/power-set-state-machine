@@ -220,7 +220,7 @@ impl StateMachine {
                 Err(TransitionError::MissingTruth(*id))
             }
         })?;
-        transition.run(&mut self.state);
+        transition.run(&mut self.state)?;
         Ok(())
     }
 
@@ -263,7 +263,7 @@ impl StateMachine {
                 Err(TransitionError::MissingTruth(*id))
             }
         })?;
-        transition.run(&mut self.state);
+        transition.run(&mut self.state)?;
         Ok(())
     }
 
@@ -291,7 +291,7 @@ impl StateMachine {
     /// ```
     pub fn run_unchecked(&mut self, transition: TransitionOnce)
     {
-        transition.run(&mut self.state);
+        transition.run(&mut self.state).unwrap();
     }
 
     /// Runs a `Transition`.
@@ -317,7 +317,7 @@ impl StateMachine {
     /// ```
     pub fn run_ref_unchecked(&mut self, transition: &Transition)
     {
-        transition.run(&mut self.state);
+        transition.run(&mut self.state).unwrap();
     }
     
     /// Runs a `TransitionMut`.
@@ -347,7 +347,7 @@ impl StateMachine {
     /// ```
     pub fn run_ref_mut_unchecked(&mut self, transition: &mut TransitionMut)
     {
-        transition.run(&mut self.state);
+        transition.run(&mut self.state).unwrap();
     }
 
     /// Sets a truth in the state.

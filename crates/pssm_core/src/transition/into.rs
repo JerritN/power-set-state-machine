@@ -1,6 +1,3 @@
-use std::fmt::Debug;
-
-use crate::Id;
 use crate::transition::InvalidTransitionError;
 
 use super::{Transition, TransitionMut, TransitionOnce};
