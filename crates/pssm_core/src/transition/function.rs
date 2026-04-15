@@ -157,7 +157,7 @@ where
 
 impl<T> TransitionInput for Option<T> 
 where 
-    T: TransitionInput + 'static
+    T: Truth + 'static
 {
     fn try_take_from(state: &mut State) -> Result<Self, TransitionError> {
         match T::try_take_from(state) {
@@ -169,6 +169,58 @@ where
     fn collect_required<C,E>(_: &mut C) -> Result<(),E>
     where 
         C: FnMut(Id) -> Result<(),E>
+    {
+        Ok(())
+    }
+}
+
+/// A marker type that represents the invalidation of a transition input.
+/// 
+/// This type indicates that the specified Input is taken from the state and then discarded, without being used in the transition function.
+/// This can be useful for cases where a transition needs to consume a truth without actually using its value.
+/// 
+/// Only truths which are required by the wrapped TransitionInput are invalidated.
+/// A wrapped optional is thus not invalidated even if the inner truth is present.
+pub struct Invalidate<T> {
+    _marker: std::marker::PhantomData<T>
+}
+
+impl<T> TransitionInput for Invalidate<T> 
+where 
+    T: TransitionInput + 'static
+{
+    fn try_take_from(state: &mut State) -> Result<Self, TransitionError> {
+        T::collect_required(&mut |id| {
+            state.remove(&id);
+            Ok::<(),()>(())
+        }).unwrap();
+
+        Ok(Invalidate { _marker: std::marker::PhantomData })
+    }
+
+    fn collect_required<C,E>(_: &mut C) -> Result<(),E>
+        where 
+            C: FnMut(Id) -> Result<(),E> 
+    {
+        Ok(())
+    }
+}
+
+/// A marker type that represents the invalidation of all remaining Truths in the state.
+/// 
+/// This type indicates that all remaining Truths in the state are discarded, without being used in the transition function.
+/// Remaining Truths are all Truths that have not yet been required by the transition function to the left of this marker.
+pub struct InvalidateRest;
+
+impl TransitionInput for InvalidateRest {
+    fn try_take_from(state: &mut State) -> Result<Self, TransitionError> {
+        state.clear();
+        Ok(InvalidateRest)
+    }
+
+    fn collect_required<C,E>(_: &mut C) -> Result<(),E>
+        where 
+            C: FnMut(Id) -> Result<(),E> 
     {
         Ok(())
     }

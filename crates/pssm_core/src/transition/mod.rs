@@ -6,7 +6,7 @@ pub(crate) mod function;
 mod into;
 
 pub use andthen::{AndThen, AndThenMut, AndThenOnce};
-pub use function::Param;
+pub use function::{Param, Invalidate, InvalidateRest};
 pub use into::{
     IntoTransition,
     IntoTransitionMut,
