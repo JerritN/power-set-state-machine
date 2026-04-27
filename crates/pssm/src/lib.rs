@@ -6,6 +6,7 @@ pub mod prelude {
         into_transition_with,
         into_transition_mut_with,
         into_transition_once_with,
+        chain_transitions,
         transition::*,
     };
     pub use pssm_dictionary::{Dictionary, TransitionDictionary};

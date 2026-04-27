@@ -5,7 +5,7 @@ mod andthen;
 pub(crate) mod function;
 mod into;
 
-pub use andthen::{AndThen, AndThenMut, AndThenOnce};
+pub use andthen::{AndThen, AndThenMut, AndThenOnce, AndThenError};
 pub use function::{Param, Invalidate, InvalidateRest};
 pub use into::{
     IntoTransition,

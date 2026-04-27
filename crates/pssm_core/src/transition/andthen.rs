@@ -1,8 +1,8 @@
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::HashSet, fmt::Debug, str};
 
-use crate::{Id, transition::InvalidTransitionError};
+use crate::{Id, transition::{InvalidTransitionError, Param}};
 
-use super::{IntoTransition, IntoTransitionMut, IntoTransitionOnce, Transition, TransitionMut, TransitionOnce};
+use super::{IntoTransition, IntoTransitionMut, IntoTransitionOnce, Transition, TransitionMut, TransitionOnce, IntoTransitionOnceParameterized};
 
 fn combine_requirements(
     mut requires1: HashSet<Id>,
@@ -285,4 +285,50 @@ where
             produces
         ))
     }
+}
+
+/// A macro for chaining transitions together.
+/// 
+/// This macro is used to apply parameters to transitions and chain them together, creating a new transition that runs the given transitions in order.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use pssm::prelude::*;
+/// 
+/// #[derive(Truth,Debug)]
+/// struct A(i32);
+/// 
+/// fn insert_a(Param(x): Param<i32>) -> A {
+///   A(x)
+/// }
+/// 
+/// fn add_to_a(a: A, Param(p): Param<i32>) -> A {
+///   A(a.0 + p)
+/// }
+/// 
+/// let mut state_machine = StateMachine::new();
+/// let transition = chain_transitions!(insert_a(3), add_to_a(2));
+/// state_machine.run(transition.unwrap());
+/// 
+/// let a = state_machine.unset_truth::<A>().unwrap();
+/// assert_eq!(a.0, 5);
+/// ```
+#[macro_export]
+macro_rules! chain_transitions {
+    ($first:ident($($first_param:expr),*) $(, $transition:ident($($param:expr),*))* $(,)?) => {{
+        fn builder<'a>() -> Result<TransitionOnce<'a>,AndThenError> {
+            let first = $first.into_transition_once_with(($($first_param,)*))?;
+
+            let transitions = [
+                $(
+                    $transition.into_transition_once_with(($($param,)*))?,
+                )*
+            ];
+
+            transitions.into_iter().try_fold(first, |acc, next| acc.and_then_once(next))
+        }
+
+        builder()
+    }};
 }
