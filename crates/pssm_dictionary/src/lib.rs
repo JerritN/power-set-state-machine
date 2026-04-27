@@ -1,7 +1,10 @@
 mod dict;
 
 use std::hash::Hash;
-use pssm_core::{transition::{IntoTransitionMut, TransitionMut, InvalidTransitionError}, StateMachine};
+use pssm_core::{
+    StateMachine,
+    transition::{IntoTransitionMut, TransitionMut, InvalidTransitionError}
+};
 
 pub use dict::Dictionary;
 

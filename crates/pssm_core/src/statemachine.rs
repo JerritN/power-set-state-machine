@@ -1,8 +1,17 @@
 use std::collections::HashMap;
 
-use crate::{State, TransitionCallError, Truth};
-use crate::transition::{InvalidTransitionError, IntoTransitionOnce, IntoTransitionOnceParameterized, Transition, TransitionError, TransitionMut, TransitionOnce};
-use crate::transition::function::TransitionInput;
+use crate::{
+    State, TransitionCallError, Truth,
+    transition::{
+        InvalidTransitionError,
+        IntoTransitionOnce,
+        IntoTransitionOnceParameterized,
+        Transition, TransitionError,
+        TransitionMut,
+        TransitionOnce,
+        function::TransitionInput
+    }
+};
 
 /// A state machine that has a state and can run transitions.
 /// 

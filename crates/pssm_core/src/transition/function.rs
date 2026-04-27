@@ -1,6 +1,9 @@
 use std::{collections::HashSet, ops::{Deref, DerefMut}};
 
-use crate::{Id, State, Truth, transition::{TransitionError, InvalidTransitionError}};
+use crate::{
+    Id, State, Truth,
+    transition::{TransitionError, InvalidTransitionError}
+};
 
 /// A wrapper type for parameters passed to transition functions.
 /// 

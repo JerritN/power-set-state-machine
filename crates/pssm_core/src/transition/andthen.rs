@@ -1,8 +1,17 @@
-use std::{collections::HashSet, fmt::Debug, str};
+use std::{collections::HashSet, fmt::Debug};
 
-use crate::{Id, transition::{InvalidTransitionError, Param}};
-
-use super::{IntoTransition, IntoTransitionMut, IntoTransitionOnce, Transition, TransitionMut, TransitionOnce, IntoTransitionOnceParameterized};
+use crate::{
+    Id,
+    transition::{
+        IntoTransition,
+        IntoTransitionMut,
+        IntoTransitionOnce,
+        Transition,
+        TransitionMut,
+        TransitionOnce,
+        InvalidTransitionError
+    }
+};
 
 fn combine_requirements(
     mut requires1: HashSet<Id>,

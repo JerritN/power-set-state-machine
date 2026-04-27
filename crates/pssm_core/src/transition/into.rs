@@ -1,7 +1,9 @@
 use crate::transition::InvalidTransitionError;
 
-use super::{Transition, TransitionMut, TransitionOnce};
-use super::function::{TransitionFunction, TransitionFunctionMut, TransitionFunctionOnce, TransitionInput, TransitionOutput};
+use crate::transition::{
+    Transition, TransitionMut, TransitionOnce,
+    function::{TransitionFunction, TransitionFunctionMut, TransitionFunctionOnce, TransitionInput, TransitionOutput}
+};
 
 /// A marker type for transitions that take an unknown input. 
 pub struct UnknownInput();
